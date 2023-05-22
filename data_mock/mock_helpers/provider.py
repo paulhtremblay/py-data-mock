@@ -1,6 +1,42 @@
 import types
 import data_mock.exceptions
 
+class QueryResults:
+
+    def __init__(self):
+        pass
+
+    def gen_func1(self):
+        for i in range(10):
+            yield i
+    def gen_func2(self):
+        return 
+        yield
+
+
+    def query_results(self, call_no = None):
+        if call_no == 0:
+            return self.gen_func2(), {'total-rows':0}
+        else:
+            return self.gen_func1(), {'total-rows':10}
+
+class QueryResults_:
+
+    def __init__(self, data):
+        self.data = data
+
+    def gen_func(self):
+        for i in self.data:
+            l = []
+            for j in i:
+                c = Data(name = j[0], value = j[1])
+                l.append(c)
+            yield l
+
+
+    def query_results(self, call_no = None):
+        return self.gen_func(), {'total-rows':len(self.data)}
+
 class Data:
 
     def __init__(self, name, value):
