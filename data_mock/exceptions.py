@@ -1,0 +1,2 @@
+class InvalidMockData(Exception):
+    pass

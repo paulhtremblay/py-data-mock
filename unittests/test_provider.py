@@ -26,6 +26,7 @@ class TestProvider(unittest.TestCase):
             for i in range(10):
                 data_obj = provider.Data(name = 'num', value = i)
                 yield [data_obj]
+        #wrong here
         provide.add_data(data = my_func, tag = 'f')
         x = provide.get_data('f')
         for i in x:

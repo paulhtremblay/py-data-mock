@@ -10,6 +10,7 @@ import data_mock.google.cloud.bigquery.client as _client
 import data_mock.google.cloud.bigquery.table as _table
 import  data_mock.google.cloud.bigquery.exceptions as _exceptions
 import  data_mock.google.cloud.bigquery.schema as _schema
+import data_mock.exceptions
 
 
 DATA1= [
@@ -148,11 +149,21 @@ class TestResults(unittest.TestCase):
         self.assertTrue(list(f[0]), ['name', 'status', 'address'])
 
     def test_not_a_list_data_raises_InvalidData(self):
-        self.assertRaises(_exceptions.InvalidMockData, _client.Client, mock_data = 1)
+        client = _client.Client(mock_data = 1)
+        self.assertRaises(
+                data_mock.exceptions.InvalidMockData, 
+                keys_func_with_key_with_result, 
+                bq_client = client, 
+                sql = get_sql()
+                )
+
 
     def test_not_a_list_in_list_data_raises_InvalidData(self):
         data = [[('name', 'value',),], 1] 
-        self.assertRaises(_exceptions.InvalidMockData, _client.Client, mock_data = data)
+        self.assertRaises(
+                data_mock.exceptions.InvalidMockData, 
+                 _client.Client, mock_data = data
+                 )
 
     def test_create_table_succeeds(self):
         table_id = 'project.dataset_id.tabele_id'
@@ -209,7 +220,7 @@ class TestResults(unittest.TestCase):
         result = client.list_tables(dataset = dataset_id)
         self.assertTrue(isinstance(result, Iterable))
 
-    def test_listL_tables_returns_iterable_with_correct_obj(self):
+    def test_list_tables_returns_iterable_with_correct_obj(self):
         table = _table.Table(table_ref = 'proj.data.id')
         client = _client.Client(mock_list_of_tables = [table])
         dataset_id = 'mock.mock'
@@ -217,7 +228,7 @@ class TestResults(unittest.TestCase):
         self.assertTrue(len(result) == 1)
         self.assertTrue(hasattr(result[0], 'table_id'))
 
-    def test_listL_delete_create_table(self):
+    def test_list_delete_create_table(self):
         client = bigquery.Client()
         dataset_id = 'mock.mock'
         result = client.list_tables(dataset = dataset_id)
@@ -230,7 +241,7 @@ class TestResults(unittest.TestCase):
         result = client.list_tables(dataset = dataset_id)
         self.assertTrue(len(result) == 0)
 
-    def test_listL_delete_create_table_with_ref(self):
+    def test_list_delete_create_table_with_ref(self):
         client = bigquery.Client()
         dataset_id = 'mock.mock'
         result = client.list_tables(dataset = dataset_id)
