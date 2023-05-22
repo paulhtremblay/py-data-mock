@@ -101,7 +101,8 @@ for i in result2:
 Custom Classes to Provide Data
 ==============================
 
-A class can be used to provide results to a query. The class below will return no data with the first call, but data on the second call:
+A class can be used to provide results to a query. The class below will return no data with the first call, but data on the second call.
+The class must provide a method `query_results`, and this method must returns two objects: a generator, and a dictionary of metadata.
 
 
 ```python
