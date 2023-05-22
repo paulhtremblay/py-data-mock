@@ -97,3 +97,47 @@ for i in result2:
     for j in i.items():
         print(j)
 ```
+
+Custom Classes to Provide Data
+==============================
+
+A class can be used to provide results to a query. The class below will return no data with the first call, but data on the second call:
+
+
+```python
+class ProviderData1:
+
+    def __init__(self):
+        self.__call_no = 0
+
+    def gen_func1(self):
+        for i in range(10):
+            yield [provider.Data(name = 'field', value = i)]
+
+    def gen_func2(self):
+        return 
+        yield
+
+    def query_results(self):
+        self.__call_no += 1
+        if self.__call_no == 1:
+            return self.gen_func2(), {'total_rows':0}
+        else:
+            return self.gen_func1(), {'total_rows':10}
+
+
+client = bigquery.Client(mock_data = ProviderData1())
+sql = "SELECT * FROM table"
+result1 = client.query(query = sql)
+self.assertEqual(result1.total_rows, 0)
+#loop should not be entered
+for i in result1:
+    assert False
+result2 = client.query(query = sql)
+self.assertEqual(result2.total_rows, 10)
+for i in result2:
+    for j in i.items():
+        self.assertEqual(j, ('field', 0))
+    break
+
+```
