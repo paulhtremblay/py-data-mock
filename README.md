@@ -1,5 +1,8 @@
 # py-data-mock
 
+Simple Example
+==============
+
 ```python
 
 import  data_mock.google.cloud.bigquery  as bigquery
@@ -9,7 +12,9 @@ bigquery_client = bigquery.Client()
 result = bigquery_client.query(SQL)
 for i in result: #loop will never be entered, since no data was registered
     pass
+```
 
+```python
 
 bigquery_client = bigquery.Client(
     mock_data = [
