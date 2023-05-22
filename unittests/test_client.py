@@ -10,6 +10,7 @@ import data_mock.google.cloud.bigquery.table as _table
 import  data_mock.google.cloud.bigquery.exceptions as _exceptions
 import  data_mock.google.cloud.bigquery.schema as _schema
 import data_mock.exceptions
+import data_mock.mock_helpers.provider as provider
 
 
 DATA1= [
@@ -95,6 +96,27 @@ def keys_func_with_key_with_result(bq_client, sql):
         final.append(i.keys())
     return final
 
+class ProviderData1:
+
+    def __init__(self):
+        self.__call_no = 0
+
+    def gen_func1(self):
+        for i in range(10):
+            yield [provider.Data(name = 'field', value = i)]
+
+    def gen_func2(self):
+        return 
+        yield
+
+    def query_results(self):
+        self.__call_no += 1
+        if self.__call_no == 1:
+            return self.gen_func2(), {'total_rows':0}
+        else:
+            return self.gen_func1(), {'total_rows':10}
+
+
 class TestResults(unittest.TestCase):
 
     def setUp(self):
@@ -110,6 +132,21 @@ class TestResults(unittest.TestCase):
         self.assertTrue(f[1], ('status', 'closed'))
         self.assertTrue(f[2], ('address', '206 W. 14th St.'))
 
+    def test_with_provider_class(self):
+        client = bigquery.Client(mock_data = ProviderData1())
+        sql = get_sql()
+        result1 = client.query(query = sql)
+        self.assertEqual(result1.total_rows, 0)
+        #loop should not be entered
+        for i in result1:
+            assert False
+        result2 = client.query(query = sql)
+        self.assertEqual(result2.total_rows, 10)
+        for i in result2:
+            for j in i.items():
+                self.assertEqual(j, ('field', 0))
+            break
+
     def test_items_schema_has_correct_attributes(self):
         client = bigquery.Client(mock_data = DATA1)
         row_iter = client.query('').result()
@@ -117,7 +154,6 @@ class TestResults(unittest.TestCase):
             self.assertTrue(hasattr(i, 'mode'))
             self.assertTrue(hasattr(i, 'name'))
             self.assertTrue(hasattr(i, 'field_type'))
-
 
     def test_items_first_result_not_using_result_method_returns_3_correct_name_values(self):
         client = bigquery.Client(mock_data = DATA1)
@@ -164,7 +200,6 @@ class TestResults(unittest.TestCase):
                 bq_client = client, 
                 sql = get_sql()
                 )
-
 
     def test_not_a_list_in_list_data_raises_InvalidData(self):
         data = [[('name', 'value',),], 1] 
