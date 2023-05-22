@@ -14,6 +14,9 @@ for i in result: #loop will never be entered, since no data was registered
     pass
 ```
 
+Register Data
+==============
+
 ```python
 
 bigquery_client = bigquery.Client(
@@ -26,8 +29,11 @@ print(f'total rows are {result.total_rows}')
 for i in result: 
     field_value = i.get('field')
     print(f'field_value is {field_value}')
+```
 
-# as subclass
+As Subclass
+==============
+```python
 
 class Client(bigquery.Client):
 
@@ -44,7 +50,16 @@ print(f'total rows are {result.total_rows}')
 for i in result: 
     field_value = i.get('field')
     print(f'field_value is {field_value}')
+```
 
+Register Data for Each SQL
+==========================
+
+You can register results for different queries. In the comment section of the SQL, put:
+``` py-bigquery-mock-register: <tag> ```
+
+
+```python
 bigquery_client = bigquery.Client()
 
 SQL="""
