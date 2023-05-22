@@ -67,15 +67,16 @@ class Row():
 class RowIterator:
 
     def __init__(self, data, m):
-        self.total_rows = 0
         if data == None:
             def none_generator():
                 return
                 yield
             self.__data = none_generator()
+            self.total_rows = 0
         else:
             self.__data = data
-        self.schema = [schema.SchemaField(name = 'todo', field_type='INTEGER')]
+            self.total_rows = m.get('total_rows')
+            self.schema = m.get('schema')
 
     def __iter__(self):
         return self

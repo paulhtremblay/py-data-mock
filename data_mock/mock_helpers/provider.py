@@ -1,29 +1,19 @@
 import types
 import data_mock.exceptions
+from data_mock.google.cloud import bigquery
+#from bigquery import SchemaField
 
-class QueryResults:
-
-    def __init__(self):
-        pass
-
-    def gen_func1(self):
-        for i in range(10):
-            yield i
-    def gen_func2(self):
-        return 
-        yield
-
-
-    def query_results(self, call_no = None):
-        if call_no == 0:
-            return self.gen_func2(), {'total-rows':0}
-        else:
-            return self.gen_func1(), {'total-rows':10}
-
-class QueryResults_:
+class QueryResultsFromList:
 
     def __init__(self, data):
         self.data = data
+        self.make_schema()
+
+    def make_schema(self):
+        schema = []
+        for i in self.data[0]:
+            schema.append(bigquery.SchemaField(name = i[0], field_type = type(i[1])))
+        self.schema = schema
 
     def gen_func(self):
         for i in self.data:
@@ -33,9 +23,8 @@ class QueryResults_:
                 l.append(c)
             yield l
 
-
-    def query_results(self, call_no = None):
-        return self.gen_func(), {'total-rows':len(self.data)}
+    def query_results(self):
+        return self.gen_func(), {'total_rows':len(self.data), 'schema' : self.schema}
 
 class Data:
 
@@ -49,31 +38,23 @@ class ProvideData:
     def __init__(self):
         self.dict = {}
 
-    def data_from_list(self, data:[[]], tag:str, metadata:dict = None) -> types.GeneratorType:
+    def data_from_list(self, data:[[()]], tag:str ) -> QueryResultsFromList:
         self._test_valid_data(data)
-        def my_func():
-            for i in data:
-                temp = []
-                for j in i:
-                    c = Data(name = j[0], value = j[1])
-                    temp.append(c)
-                yield temp
-        self.dict[tag] = my_func, metadata
+        self.dict[tag] = QueryResultsFromList(data = data)
 
-    def add_data(self, data:[list], tag:str, metadata: dict = None):
+    def add_data(self, data:[list], tag:str):
         if isinstance(data, list):
             self.data_from_list(data, tag)
-            return
-        self.dict[tag] = data, metadata
+        else:
+            self.dict[tag] = data
 
     def get_data(self, key:str) -> [None, types.GeneratorType]:
         if not self.dict.get(key):
             return None, None
-        if not  hasattr(self.dict[key][0], '__call__'):
-            raise data_mock.exceptions.InvalidMockData('not a function')
+        if not  hasattr(self.dict[key], 'query_results'):
+            raise data_mock.exceptions.InvalidMockData('object does not have query_results')
 
-        g, metadata = self.dict[key]
-        return g(), metadata
+        return self.dict[key].query_results()
 
     def _test_valid_data(self, data):
         if not isinstance(data, list):

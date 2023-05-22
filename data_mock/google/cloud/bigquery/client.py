@@ -23,8 +23,8 @@ class Client:
         if mock_data:
             self._data_provider.add_data(data = mock_data, tag = 'default_')
 
-    def register_mock_data(self, key, mock_data, metadata = None):
-        self._data_provider.add_data(data = mock_data, tag = key, metadata = metadata)
+    def register_mock_data(self, key, mock_data):
+        self._data_provider.add_data(data = mock_data, tag = key)
 
     def query(self, query,
         job_config: job_query.QueryJobConfig = None,

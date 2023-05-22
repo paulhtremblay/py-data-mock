@@ -6,7 +6,6 @@ from collections.abc import Iterable
 from data_mock.google.cloud import bigquery
 
 #from data_mock.google.cloud.bigquery import QueryJobConfig
-import data_mock.google.cloud.bigquery.client as _client
 import data_mock.google.cloud.bigquery.table as _table
 import  data_mock.google.cloud.bigquery.exceptions as _exceptions
 import  data_mock.google.cloud.bigquery.schema as _schema
@@ -105,51 +104,60 @@ class TestResults(unittest.TestCase):
         pass
 
     def test_items_first_result_returns_3_correct_name_values(self):
-        client = _client.Client(mock_data = DATA1)
+        client = bigquery.Client(mock_data = DATA1)
         f = items_func_with_result(bq_client = client, sql = get_sql())
         self.assertTrue(f[0], ('name', 'State Capitol @ 14th & Colorado'))
         self.assertTrue(f[1], ('status', 'closed'))
         self.assertTrue(f[2], ('address', '206 W. 14th St.'))
 
+    def test_items_schema_has_correct_attributes(self):
+        client = bigquery.Client(mock_data = DATA1)
+        row_iter = client.query('').result()
+        for i in row_iter.schema:
+            self.assertTrue(hasattr(i, 'mode'))
+            self.assertTrue(hasattr(i, 'name'))
+            self.assertTrue(hasattr(i, 'field_type'))
+
+
     def test_items_first_result_not_using_result_method_returns_3_correct_name_values(self):
-        client = _client.Client(mock_data = DATA1)
+        client = bigquery.Client(mock_data = DATA1)
         f = items_func_not_use_result(bq_client = client, sql = get_sql())
         self.assertTrue(f[0], ('name', 'State Capitol @ 14th & Colorado'))
         self.assertTrue(f[1], ('status', 'closed'))
         self.assertTrue(f[2], ('address', '206 W. 14th St.'))
 
     def test_items_no_values_returns_empty_list(self):
-        client = _client.Client()
+        client = bigquery.Client()
         f = items_func_with_result(bq_client = client, sql = get_sql())
         self.assertEqual(f, [])
 
     def test_get_name_returns_2_correct_names(self):
-        client = _client.Client(mock_data = DATA1)
+        client = bigquery.Client(mock_data = DATA1)
         f = get_func_no_key(bq_client = client, sql = get_sql())
         self.assertEqual(f, ['State Capitol @ 14th & Colorado', 'Bullock Museum @ Congress & MLK'])
         
     def test_get_name_with_key_word_arg_returns_2_correct_names(self):
-        client = _client.Client(mock_data = DATA1)
+        client = bigquery.Client(mock_data = DATA1)
         f = get_func_with_key(bq_client = client, sql = get_sql())
         self.assertEqual(f, ['State Capitol @ 14th & Colorado', 'Bullock Museum @ Congress & MLK'])
 
     def test_get_name_with_key_word_arg_and_result_method_returns_2_correct_names(self):
-        client = _client.Client(mock_data = DATA1)
+        client = bigquery.Client(mock_data = DATA1)
         f = get_func_with_key_with_result(bq_client = client, sql = get_sql())
         self.assertEqual(f, ['State Capitol @ 14th & Colorado', 'Bullock Museum @ Congress & MLK'])
 
     def test_values_returns_2_correct_values(self):
-        client = _client.Client(mock_data = DATA1)
+        client = bigquery.Client(mock_data = DATA1)
         f = values_func_with_key_with_result(bq_client = client, sql = get_sql())
         self.assertEqual(f[0], ('State Capitol @ 14th & Colorado', 'closed', '206 W. 14th St.'))
 
     def test_keys_returns_correct_keys_first_result(self):
-        client = _client.Client(mock_data = DATA1)
+        client = bigquery.Client(mock_data = DATA1)
         f = keys_func_with_key_with_result(bq_client = client, sql = get_sql())
         self.assertTrue(list(f[0]), ['name', 'status', 'address'])
 
     def test_not_a_list_data_raises_InvalidData(self):
-        client = _client.Client(mock_data = 1)
+        client = bigquery.Client(mock_data = 1)
         self.assertRaises(
                 data_mock.exceptions.InvalidMockData, 
                 keys_func_with_key_with_result, 
@@ -162,7 +170,7 @@ class TestResults(unittest.TestCase):
         data = [[('name', 'value',),], 1] 
         self.assertRaises(
                 data_mock.exceptions.InvalidMockData, 
-                 _client.Client, mock_data = data
+                bigquery.Client, mock_data = data
                  )
 
     def test_create_table_succeeds(self):
@@ -171,19 +179,19 @@ class TestResults(unittest.TestCase):
             _schema.SchemaField("full_name", "STRING", mode="REQUIRED"),
             _schema.SchemaField("age", "INTEGER", mode="REQUIRED"),
         ]
-        client = _client.Client()
+        client = bigquery.Client()
         table = _table.Table(table_ref = table_id, schema=schema)
         client.create_table(table)
         self.assertTrue(hasattr(table, 'project') and hasattr(table, 'table_id') and hasattr(table, 'dataset_id'))
 
     def test_create_table_as_string_succeeds(self):
         table_id = 'project.dataset_id.table_id'
-        client = _client.Client()
+        client = bigquery.Client()
         table = client.create_table(table = table_id)
         self.assertTrue(hasattr(table, 'project') and hasattr(table, 'table_id') and hasattr(table, 'dataset_id'))
 
     def test_register_data_reads_right_data(self):
-        client = _client.Client()
+        client = bigquery.Client()
         mock_data = [
             [('data1-test', 'found')],
             ]
@@ -200,7 +208,7 @@ class TestResults(unittest.TestCase):
         self.assertEqual(f, mock_data)
 
     def test_delete_table(self):
-        client = _client.Client()
+        client = bigquery.Client()
         client.delete_table(table = 'x.x.x', not_found_ok = True)
 
     def test_query_works_with_config(self):
@@ -215,14 +223,14 @@ class TestResults(unittest.TestCase):
         query_job = client.query(sql, job_config=job_config)  
 
     def test_list_tables_returns_iterable(self):
-        client = _client.Client(mock_data = DATA1)
+        client = bigquery.Client(mock_data = DATA1)
         dataset_id = 'mock.mock'
         result = client.list_tables(dataset = dataset_id)
         self.assertTrue(isinstance(result, Iterable))
 
     def test_list_tables_returns_iterable_with_correct_obj(self):
         table = _table.Table(table_ref = 'proj.data.id')
-        client = _client.Client(mock_list_of_tables = [table])
+        client = bigquery.Client(mock_list_of_tables = [table])
         dataset_id = 'mock.mock'
         result = client.list_tables(dataset = dataset_id)
         self.assertTrue(len(result) == 1)
