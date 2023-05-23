@@ -1,3 +1,4 @@
+from data_mock.mock_helpers import writer
 class Blob:
 
     _DEFAULT_TIMEOUT = 1
@@ -30,9 +31,9 @@ class Blob:
         timeout=_DEFAULT_TIMEOUT,
         checksum=None,
         retry=DEFAULT_RETRY_IF_GENERATION_SPECIFIED,
+        write_class = writer.Writer(),
         ):
-
-        pass
+        write_class.write_to_storage_from_string(data = data)
 
     def upload_from_file(self):
         pass
