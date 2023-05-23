@@ -1,5 +1,7 @@
 # py-data-mock
 
+pip install py-data-mock
+
 Simple Example
 ==============
 
