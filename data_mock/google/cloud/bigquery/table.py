@@ -44,8 +44,8 @@ class Row():
         self.__info = {}
         l = []
         for i in row:
-            self.__info[i[0]] = i[1]
-            l.append(i[1])
+            self.__info[i.name] = i.value
+            l.append(i.value)
         self.__values = tuple(l)
         self.row = row
 
@@ -56,7 +56,7 @@ class Row():
 
     def items(self, *args, **kwargs):
         for i in self.row:
-            yield i
+            yield i.name, i.value
 
     def values(self, *args, **kwargs):
         return self.__values
@@ -66,21 +66,27 @@ class Row():
 
 class RowIterator:
 
-    def __init__(self, data):
-        self.__counter = 0
-        self.total_rows = len(data)
-        self.__data = data
-        self.schema = [schema.SchemaField(name = 'todo', field_type='INTEGER')]
+    def __init__(self, data, m):
+        if data == None:
+            def none_generator():
+                return
+                yield
+            self.__data = none_generator()
+            self.total_rows = 0
+        else:
+            self.__data = data
+            self.total_rows = m.get('total_rows')
+            self.schema = m.get('schema')
 
     def __iter__(self):
         return self
 
     def __next__(self):
-        if self.__counter< self.total_rows:
-            self.__counter += 1
-            return Row(row = self.__data[self.__counter -1])
-        else:
+        v = next(self.__data)
+        if not v:
             raise StopIteration
+        else:
+            return Row(row = v)
 
     def result(self):
         return self
