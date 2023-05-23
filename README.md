@@ -3,9 +3,10 @@
 pip install py-data-mock
 
 BigQuery
----------
+=========
 
 Simple Example
+--------------
 ==============
 
 ```python
@@ -20,7 +21,7 @@ for i in result: #loop will never be entered, since no data was registered
 ```
 
 Register Data
-==============
+-------------
 
 ```python
 
@@ -37,7 +38,7 @@ for i in result:
 ```
 
 As Subclass
-==============
+------------
 ```python
 
 class Client(bigquery.Client):
@@ -58,7 +59,7 @@ for i in result:
 ```
 
 Register Data for Each SQL
-==========================
+--------------------------
 
 You can register results for different queries. In the comment section of the SQL, put:
 ``` py-bigquery-mock-register: <tag> ```
@@ -104,7 +105,7 @@ for i in result2:
 ```
 
 Custom Classes to Provide Data
-==============================
+-------------------------------
 
 A class can be used to provide results to a query. The class below will return no data with the first call, but data on the second call.
 The class must provide a method `query_results`, and this method must returns two objects: a generator, and a dictionary of metadata.
@@ -148,7 +149,7 @@ for i in result2:
 
 ```
 Storage
----------
+========
 
 ```python
 from data_mock.google.cloud import storage
