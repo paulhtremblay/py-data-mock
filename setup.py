@@ -9,7 +9,7 @@ setup(
     author='Henry Tremblay',
     author_email='paulhtremblay@gmail.com',
     license='GNU GENERAL PUBLIC LICENSE',
-    packages=['data_mock/google/cloud/bigquery'],
+    packages=['data_mock/google/cloud/bigquery/job', 'data_mock/google/cloud/bigquery'],
      classifiers=[
         'Programming Language :: Python :: 3',
         'Topic :: Software Development :: Testing :: Mocking'
