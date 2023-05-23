@@ -2,6 +2,9 @@
 
 pip install py-data-mock
 
+BigQuery
+---------
+
 Simple Example
 ==============
 
@@ -143,4 +146,14 @@ for i in result2:
         self.assertEqual(j, ('field', 0))
     break
 
+```
+Storage
+---------
+
+```python
+from data_mock.google.cloud import storage
+storage_client = storage.Client()
+bucket = storage_client.bucket('bucket_name')
+blob = bucket.blob('blob_name')
+blob.upload_from_string(data= 'string', content_type='application/json')  
 ```
