@@ -27,7 +27,7 @@ class Client:
         self._data_provider.add_data(data = mock_data, tag = key)
 
     def query(self, query,
-        job_config: job_query.QueryJobConfig = None,
+        job_config: Optional[job_query.QueryJobConfig] = None,
         job_id: str = None,
         job_id_prefix: str = None,
         location: str = None,

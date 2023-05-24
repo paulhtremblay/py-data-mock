@@ -1,4 +1,5 @@
 import types
+from typing import Union, List
 import data_mock.exceptions
 from data_mock.google.cloud import bigquery
 #from bigquery import SchemaField
@@ -38,17 +39,17 @@ class ProvideData:
     def __init__(self):
         self.dict = {}
 
-    def data_from_list(self, data:[[()]], tag:str ) -> QueryResultsFromList:
+    def data_from_list(self, data:List, tag:str ):
         self._test_valid_data(data)
         self.dict[tag] = QueryResultsFromList(data = data)
 
-    def add_data(self, data:[list], tag:str):
+    def add_data(self, data:List, tag:str):
         if isinstance(data, list):
             self.data_from_list(data, tag)
         else:
             self.dict[tag] = data
 
-    def get_data(self, key:str) -> [None, types.GeneratorType]:
+    def get_data(self, key:str) -> Union[None, types.GeneratorType]:
         if not self.dict.get(key):
             return None, None
         if not  hasattr(self.dict[key], 'query_results'):
