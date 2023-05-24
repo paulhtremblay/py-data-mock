@@ -117,7 +117,9 @@ class ProviderData1:
             return self.gen_func1(), {'total_rows':10}
 
 class BadClass1:
-    pass
+    def query_results(self):
+        return None
+
 
 
 
@@ -212,7 +214,6 @@ class TestResults(unittest.TestCase):
                 bigquery.Client, mock_data = data
                  )
     def test_data_not_a_class_raises_InvalidData(self):
-        #class BadClass1:
         class Client(bigquery.Client):
 
             def register_initial_mock_data(self):
@@ -222,6 +223,37 @@ class TestResults(unittest.TestCase):
                 data_mock.exceptions.InvalidMockData, 
                 client.query, query = ''
                  )
+
+    def test_data_not_a_class2_raises_InvalidData(self):
+        class Client(bigquery.Client):
+
+            def register_initial_mock_data(self):
+                self.data_provider.add_data(data =1, tag = 'default')
+        client = Client()
+        self.assertRaises(
+                data_mock.exceptions.InvalidMockData, 
+                client.query, query = ''
+                 )
+
+    def test_data_not_a_class3_raises_InvalidData(self):
+        class Client(bigquery.Client):
+            def query_results(self):
+                return None
+
+            def register_initial_mock_data(self):
+                self.data_provider.add_data(data =BadClass1(), tag = 'default')
+
+        c = Client()
+        self.assertRaises(data_mock.exceptions.InvalidMockData,c.query, query = '')
+
+    def test_data_not_registered_raises_InvalidData(self):
+        client = bigquery.Client()
+        sql = """
+
+            py-bigquery-mock-register: data1
+        """
+        self.assertRaises(data_mock.exceptions.InvalidMockData,client.query, query = sql)
+
 
     def test_create_table_succeeds(self):
         table_id = 'project.dataset_id.tabele_id'
