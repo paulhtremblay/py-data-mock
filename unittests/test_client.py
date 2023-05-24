@@ -116,6 +116,11 @@ class ProviderData1:
         else:
             return self.gen_func1(), {'total_rows':10}
 
+class BadClass1:
+    pass
+
+
+
 class TestResults(unittest.TestCase):
 
     def setUp(self):
@@ -205,6 +210,17 @@ class TestResults(unittest.TestCase):
         self.assertRaises(
                 data_mock.exceptions.InvalidMockData, 
                 bigquery.Client, mock_data = data
+                 )
+    def test_data_not_a_class_raises_InvalidData(self):
+        #class BadClass1:
+        class Client(bigquery.Client):
+
+            def register_initial_mock_data(self):
+                self.data_provider.add_data(data =ProviderData1, tag = 'default')
+        client = Client()
+        self.assertRaises(
+                data_mock.exceptions.InvalidMockData, 
+                client.query, query = ''
                  )
 
     def test_create_table_succeeds(self):

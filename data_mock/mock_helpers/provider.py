@@ -3,6 +3,7 @@ from typing import Union, List
 import data_mock.exceptions
 from data_mock.google.cloud import bigquery
 #from bigquery import SchemaField
+import types
 
 class QueryResultsFromList:
 
@@ -54,6 +55,10 @@ class ProvideData:
             return None, None
         if not  hasattr(self.dict[key], 'query_results'):
             raise data_mock.exceptions.InvalidMockData('object does not have query_results')
+        if not isinstance(self.dict[key].query_results, types.MethodType):
+            msg = '"query_results" is  not a method; did you pass the class rather than class()?'
+            raise data_mock.exceptions.InvalidMockData(msg)
+
 
         return self.dict[key].query_results()
 

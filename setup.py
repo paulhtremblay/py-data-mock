@@ -10,7 +10,7 @@ setup(
     author_email='paulhtremblay@gmail.com',
     license='GNU GENERAL PUBLIC LICENSE',
     packages=['data_mock/google/cloud/bigquery/job', 'data_mock/google/cloud/bigquery',
-        'data_mock/google/cloud/storage','data_mock/mock_helpers',
+        'data_mock/google/cloud/storage','data_mock/mock_helpers', 'data_mock',
         ],
      classifiers=[
         'Programming Language :: Python :: 3',
