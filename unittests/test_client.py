@@ -116,7 +116,6 @@ class ProviderData1:
         else:
             return self.gen_func1(), {'total_rows':10}
 
-
 class TestResults(unittest.TestCase):
 
     def setUp(self):
