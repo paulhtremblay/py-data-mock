@@ -19,12 +19,16 @@ class Client:
             mock_list_of_tables = None):
         self.project = project
         self.__list_of_tables = mock_list_of_tables
-        self._data_provider = provider.ProvideData()
+        self.data_provider = provider.ProvideData()
         if mock_data:
-            self._data_provider.add_data(data = mock_data, tag = 'default_')
+            self.data_provider.add_data(data = mock_data, tag = 'default')
+        self.register_initial_mock_data()
 
     def register_mock_data(self, key, mock_data):
-        self._data_provider.add_data(data = mock_data, tag = key)
+        self.data_provider.add_data(data = mock_data, tag = key)
+
+    def register_initial_mock_data(self):
+        pass
 
     def query(self, query,
         job_config: Optional[job_query.QueryJobConfig] = None,
@@ -41,11 +45,11 @@ class Client:
         """
         key = self._get_sql_key(query)
         if key:
-            data, m = self._data_provider.get_data(key)
+            data, m = self.data_provider.get_data(key)
             if not data:
                 raise exceptions.InvalidMockData(f'{key} not found in registered_data')
         else:
-            data, m = self._data_provider.get_data('default_')
+            data, m = self.data_provider.get_data('default')
         return _table.RowIterator(data = data, m = m)
 
     def create_table(self,

@@ -43,15 +43,15 @@ As Subclass
 
 class Client(bigquery.Client):
 
-    def __init__(self):
+    def register_initial_mock_data(self):
         mock_data = [
                 [('field', 'value')
                     ]
                 ]
-        super().__init__(mock_data = mock_data)
+        self.data_provider.add_data(data = mock_data, tag = 'default')
 
 bigquery_client = Client()
-result = bigquery_client.query(SQL)
+result = bigquery_client.query("""SELECT * FROM TABLE""")
 print(f'total rows are {result.total_rows}')
 for i in result: 
     field_value = i.get('field')
@@ -66,7 +66,20 @@ You can register results for different queries. In the comment section of the SQ
 
 
 ```python
-bigquery_client = bigquery.Client()
+import  data_mock.google.cloud.bigquery  as bigquery
+
+class Client(bigquery.Client):
+
+    def register_initial_mock_data(self):
+        mock_data =[   
+                    [   ('name', '10th & Red River'),
+                        ('status', 'active'),
+                        ('address', '699 East 10th Street')],
+                    [   ('name', '11th & Salina'),
+                        ('status', 'active'),
+                        ('address', '1705 E 11th St')]]
+        self.data_provider.add_data(data = mock_data, tag = 'bikeshare-name-status-address')
+
 
 SQL="""
             /*
@@ -82,26 +95,23 @@ SQL="""
       2
 """
 
-mock_data =[   
-            [   ('name', '10th & Red River'),
-                ('status', 'active'),
-                ('address', '699 East 10th Street')],
-            [   ('name', '11th & Salina'),
-                ('status', 'active'),
-                ('address', '1705 E 11th St')]]
-
-
-bigquery_client.register_mock_data(key = 'bikeshare-name-status-address', 
-        mock_data = mock_data)
-
-result1 = bigquery_client.query(query = "SELECT * FROM `bigquery-public-data.austin_bikeshare.bikeshare_stations`"
-)
+bigquery_client = Client()
+result1 = bigquery_client.query("""SELECT * FROM TABLE""")
 for i in result1:
     print('nothing found, because data not registered')
 result2 = bigquery_client.query(query = SQL)
 for i in result2:
     for j in i.items():
         print(j)
+        """
+('name', '10th & Red River')
+('status', 'active')
+('address', '699 East 10th Street')
+('name', '11th & Salina')
+('status', 'active')
+('address', '1705 E 11th St')
+
+        """
 ```
 
 Custom Classes to Provide Data
@@ -112,6 +122,9 @@ The class must provide a method `query_results`, and this method must returns tw
 
 
 ```python
+import  data_mock.google.cloud.bigquery  as bigquery
+import data_mock.mock_helpers.provider as provider
+
 class ProviderData1:
 
     def __init__(self):
@@ -133,18 +146,26 @@ class ProviderData1:
             return self.gen_func1(), {'total_rows':10}
 
 
-client = bigquery.Client(mock_data = ProviderData1())
+class Client(bigquery.Client):
+
+    def register_initial_mock_data(self):
+        self.data_provider.add_data(data =ProviderData1(), tag = 'default')
+
+
+client = Client()
+
+
 sql = "SELECT * FROM table"
 result1 = client.query(query = sql)
-self.assertEqual(result1.total_rows, 0)
+assert result1.total_rows == 0
 #loop should not be entered
 for i in result1:
     assert False
 result2 = client.query(query = sql)
-self.assertEqual(result2.total_rows, 10)
+assert result2.total_rows == 10
 for i in result2:
     for j in i.items():
-        self.assertEqual(j, ('field', 0))
+        assert j ==  ('field', 0)
     break
 
 ```
