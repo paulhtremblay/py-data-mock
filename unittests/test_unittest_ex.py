@@ -1,3 +1,5 @@
+import sys
+sys.path.append(".")
 import json
 import uuid
 import datetime
@@ -109,6 +111,7 @@ def is_data_old():
 # Mocks
 #============================
 
+
 class MockClient1(bigquery_mock.Client):
     mock_data_ = [   [   ('name', '10th & Red River'),
         ('status', 'active'),
@@ -117,10 +120,9 @@ class MockClient1(bigquery_mock.Client):
         ('status', 'active'),
         ('address', '1705 E 11th St')]]
 
-    def __init__(self, project = None, mock_data = None, 
-            mock_list_of_tables = None):
-        super().__init__(mock_data = mock_data)
-        self._data_provider.add_data(data = self.mock_data_, tag = 'bikeshare-name-status-address')
+    def register_initial_mock_data(self):
+        self.data_provider.add_data(data = self.mock_data_, tag = 'bikeshare-name-status-address')
+
 
 class MockClient2(bigquery_mock.Client):
     mock_data_ = [   [   ('name', '10th & Red River'),
@@ -130,30 +132,14 @@ class MockClient2(bigquery_mock.Client):
         ('status', 'active'),
         ('address', '1705 E 11th St')]]
 
-    def __init__(self, project = None, mock_data = None, 
-            mock_list_of_tables = None):
-        super().__init__(mock_data = mock_data)
-        self._data_provider.add_data(data = self.mock_data_, tag = 'default_')
+    def register_initial_mock_data(self):
+        self.data_provider.add_data(data = self.mock_data_, tag = 'default')
 
 class MockClient3(bigquery_mock.Client):
     mock_data_ = [  [  ('max_date', datetime.datetime(2022, 3, 4, 10, 38, 0)),]]
-    def __init__(self, project = None, mock_data = None, 
-            mock_list_of_tables = None):
-        super().__init__(mock_data = mock_data)
-        self._data_provider.add_data(data = self.mock_data_, tag = 'default_')
+    def register_initial_mock_data(self):
+        self.data_provider.add_data(data = self.mock_data_, tag = 'default')
 
-def f(*args, **kwargs):
-
-    mock_data = [   [   ('name', '10th & Red River'),
-        ('status', 'active'),
-        ('address', '699 East 10th Street')],
-    [   ('name', '11th & Salina'),
-        ('status', 'active'),
-        ('address', '1705 E 11th St')]]
-    client = bigquery_mock.Client()
-    client.register_mock_data(key = 'bikeshare-name-status-address', 
-        mock_data = mock_data)
-    return client
 
 #====================
 # Test Suite
@@ -164,12 +150,6 @@ class TestGetData(unittest.TestCase):
     def test_storage(self, mock_s):
         data = {'foo':'bar'}
         store_matchpoint_data(data = data) 
-
-
-    @mock.patch('google.cloud.bigquery.Client', side_effect= f )
-    def test_records_are_active_is_true1(self, bq_m):
-        result = records_are_active()
-        self.assertTrue(result)
 
     @mock.patch('google.cloud.bigquery.Client', side_effect= MockClient1 )
     def test_records_are_active_is_true2(self, bq_m):
