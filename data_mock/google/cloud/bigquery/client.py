@@ -1,9 +1,9 @@
-from . import exceptions
 from .  import table as _table
 from .job import query as job_query
 from . import retry as retries
 from . import dataset as _dataset
 import data_mock.mock_helpers.provider as provider
+import data_mock.exceptions as exceptions
 
 from typing import Union, Optional
 
@@ -49,7 +49,10 @@ class Client:
             if not data:
                 raise exceptions.InvalidMockData(f'{key} not found in registered_data')
         else:
-            data, m = self.data_provider.get_data('default')
+            try:
+                data, m = self.data_provider.get_data('default')
+            except TypeError:
+                raise exceptions.InvalidMockData(f'bad class')
         return _table.RowIterator(data = data, m = m)
 
     def create_table(self,
