@@ -3,9 +3,15 @@ from .job import query as job_query
 from . import retry as retries
 from . import dataset as _dataset
 import data_mock.mock_helpers.provider as provider
+import data_mock.google.cloud.bigquery.job as job
+from data_mock.google.cloud.bigquery.job  import LoadJobConfig
+from data_mock.google.cloud.bigquery.table  import Table
+from data_mock.google.cloud.bigquery.table  import TableReference
+from data_mock.google.cloud.bigquery.table  import TableListItem
+from data_mock.exceptions import InvalidMockData
 import data_mock.exceptions as exceptions
 
-from typing import Union, Optional
+from typing import Union, Optional, Sequence
 
 # these values do nothing
 DEFAULT_RETRY = None
@@ -111,8 +117,55 @@ class Client:
             return []
         return self.__list_of_tables
 
+    def load_table_from_uri(
+        self,
+        source_uris: Union[str, Sequence[str]],
+        destination: Union[_table.Table, _table.TableReference, _table.TableListItem, str],
+        job_id: str = None,
+        job_id_prefix: str = None,
+        location: str = None,
+        project: str = None,
+        job_config: LoadJobConfig = None,
+        retry: retries.Retry = DEFAULT_RETRY,
+        timeout: TimeoutType = DEFAULT_TIMEOUT,
+        ) -> job.LoadJob:
+        load_job = job.LoadJob(job_ref = None, source_uris = source_uris, destination = destination, 
+            new_job_config = None)
+        load_job._begin(retry=retry, timeout=timeout)
+        if not isinstance(job_config, LoadJobConfig):
+            raise InvalidMockData('job_config must be of type LoadJobConfig')
+        return load_job
 
-    def _get_sql_key(self, query):
+    def get_table(
+        self,
+        table: Union[Table, TableReference, TableListItem, str],
+        retry: retries.Retry = DEFAULT_RETRY,
+        timeout: TimeoutType = DEFAULT_TIMEOUT,
+    ) -> Table:
+        if isinstance(table,str):
+            table_ref = self._mock_make_table_ref(table_id = table)
+        else:
+            table_ref = table
+        return Table(table_ref = table_ref)
+
+    def _mock_make_table_ref(self, table_id:str) -> str:
+        fields = table_id.split()
+        if len(fields) == 3:
+            return table_id
+        else:
+            if not self.project:
+                project = 'not_passesd'
+            else:
+                project = self.project
+            if len(fields) == 2:
+                return f'{project}.{table_id}'
+            elif len(fields) == 1:
+                return f'{project}.dataset_not_passed.{table_id}'
+            else:
+                raise ValueError('bad sring')
+
+
+    def _get_sql_key(self, query:str)-> str:
         for line in query.split('\n'):
             if 'py-bigquery-mock-register:' in line:
                 fields = line.split(':')
