@@ -1,4 +1,3 @@
-from . import exceptions
 from .  import table as _table
 from .job import query as job_query
 from . import retry as retries
@@ -10,6 +9,7 @@ from data_mock.google.cloud.bigquery.table  import Table
 from data_mock.google.cloud.bigquery.table  import TableReference
 from data_mock.google.cloud.bigquery.table  import TableListItem
 from data_mock.exceptions import InvalidMockData
+import data_mock.exceptions as exceptions
 
 from typing import Union, Optional, Sequence
 
@@ -55,7 +55,10 @@ class Client:
             if not data:
                 raise exceptions.InvalidMockData(f'{key} not found in registered_data')
         else:
-            data, m = self.data_provider.get_data('default')
+            try:
+                data, m = self.data_provider.get_data('default')
+            except TypeError:
+                raise exceptions.InvalidMockData(f'bad class')
         return _table.RowIterator(data = data, m = m)
 
     def create_table(self,
