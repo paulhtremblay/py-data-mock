@@ -29,9 +29,16 @@ SCHEMA2 = [SchemaField(
 
 class TestGenearteData(unittest.TestCase):
 
-    def test_nothing(self):
-        l = generate_data.generate_data(schema = SCHEMA2)
-        print(l)
+    def test_generate_data_gets_correct_values(self):
+        l = generate_data.generate_data(schema = SCHEMA2, num_rows = 1)
+        all_names = []
+        jobs = None
+        for i in l:
+            for j in i:
+                all_names.append(j.name)
+                if j.name == 'jobs':
+                    jobs = j.value
+        self.assertEqual(all_names, ['jobs', 'addresses', 'name'])
 
 
 if __name__ == '__main__':

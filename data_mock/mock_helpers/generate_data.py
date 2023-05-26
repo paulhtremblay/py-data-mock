@@ -1,4 +1,5 @@
 from data_mock.google.cloud.bigquery import SchemaField
+from data_mock.mock_helpers.provider import Data
 
 def generate_value(field_type):
     return f'genearte for {field_type}'
@@ -23,11 +24,12 @@ def generate_field(f:SchemaField) -> dict:
 
 
 def generate_data(schema, num_rows = 1):
-    final = []
     for i in range(num_rows):
         temp = []
+        temp2 = []
         for j in schema:
             r = generate_field(j)
             temp.append(r)
-        final.append(temp)
-    return final
+            for key in r.keys():
+                temp2.append(Data(name = key,value = r[key]))
+        yield temp2
