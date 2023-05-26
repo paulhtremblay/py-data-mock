@@ -20,15 +20,6 @@ def generate_field(f:SchemaField) -> dict:
             current[2][current_name] = generate_value(field_type = current_o.field_type)
     return final
 
-def convert_to_tuple(o):
-    final = {}
-    for key in o.keys():
-        final[key] = o[key]
-    stack = list(o.keys())
-    while len(stack) != 0:
-        stack.pop()
-    return final
-
 
 
 def generate_data(schema, num_rows = 1):
@@ -37,7 +28,6 @@ def generate_data(schema, num_rows = 1):
         temp = []
         for j in schema:
             r = generate_field(j)
-            r = convert_to_tuple(r)
             temp.append(r)
         final.append(temp)
     return final
