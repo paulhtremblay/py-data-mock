@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='py-data-mock',
-    version='0.0.4',    
+    version='0.0.5',    
     scripts=['data_mock/scripts/mkmock.py'],
     description='Mock Data',
     url='https://github.com/paulhtremblay/py-data-mock',

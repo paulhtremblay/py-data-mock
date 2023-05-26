@@ -3,7 +3,10 @@ sys.path.append('.')
 import unittest
 from collections.abc import Iterable 
 
+import datetime
+
 from data_mock.google.cloud import bigquery
+from data_mock.google.cloud.bigquery import SchemaField
 
 #from data_mock.google.cloud.bigquery import QueryJobConfig
 import data_mock.google.cloud.bigquery.table as _table
@@ -120,8 +123,22 @@ class BadClass1:
     def query_results(self):
         return None
 
+class NestedClient1(bigquery.Client):
+    def register_initial_mock_data(self):
+        mock_data = [
+                [
+                    ('jobs', [{'duration': 3, 'date': datetime.date(2021, 1, 1)}]),
+                    ('addresses', ['some address', 'some address 2']),
+                    ('name', 'henry'),
+                    ],
+                [
+                    ('jobs', [{'duration': 4, 'date': datetime.date(2021, 1, 3)}]),
+                    ('addresses', ['some address2', 'some address 3']),
+                    ('name', 'henry2'),
+                    ]
 
-
+                ]
+        self.data_provider.add_data(data = mock_data, tag = 'default')
 
 class TestResults(unittest.TestCase):
 
@@ -344,6 +361,39 @@ class TestResults(unittest.TestCase):
         result = client.list_tables(dataset = dataset_id)
         self.assertTrue(len(result) == 0)
 
+    def test_nested_1(self):
+        client = NestedClient1()
+        needed = [[{'duration': 3, 'date': datetime.date(2021, 1, 1)}], 
+            [{'duration': 4, 'date': datetime.date(2021, 1, 3)}]]
+        jobs_result = []
+        address_result = []
+        needed_address = [
+                ['some address', 'some address 2'], 
+                ['some address2', 'some address 3']
+            ]
+
+        result = client.query(query = '')
+        for i in result:
+            jobs_result.append(i.get('jobs'))
+            address_result.append(i.get('addresses'))
+        self.assertEqual(jobs_result, needed)
+        self.assertEqual(needed_address, address_result)
+
+    def test_nested_schema1(self):
+        [SchemaField(
+                'jobs', 'RECORD', 'REPEATED', None, None, 
+                (SchemaField('duration', 'INTEGER', 'NULLABLE', None, None, (), None), 
+                SchemaField('date', 'DATE', 'NULLABLE', None, None, (), None)), None), 
+            SchemaField('addresses', 'STRING', 'REPEATED', None, None, (), None), 
+            SchemaField('name', 'STRING', 'NULLABLE', None, None, (), None)]
+
+    def test_nested_schema2(self):
+        [SchemaField(
+                'jobs', 'RECORD', 'REPEATED', fields = (
+                (SchemaField('duration', 'INTEGER', 'NULLABLE', None, None, (), None), 
+                SchemaField('date', 'DATE', 'NULLABLE', None, None, (), None)), None)), 
+            SchemaField('addresses', 'STRING', 'REPEATED', None, None, (), None), 
+            SchemaField('name', 'STRING', 'NULLABLE', None, None, (), None)]
 
 if __name__ == '__main__':
     unittest.main()
