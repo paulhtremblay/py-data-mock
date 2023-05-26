@@ -6,6 +6,7 @@ from collections.abc import Iterable
 import datetime
 
 from data_mock.google.cloud import bigquery
+from data_mock.google.cloud.bigquery import SchemaField
 
 #from data_mock.google.cloud.bigquery import QueryJobConfig
 import data_mock.google.cloud.bigquery.table as _table
@@ -378,7 +379,21 @@ class TestResults(unittest.TestCase):
         self.assertEqual(jobs_result, needed)
         self.assertEqual(needed_address, address_result)
 
+    def test_nested_schema1(self):
+        [SchemaField(
+                'jobs', 'RECORD', 'REPEATED', None, None, 
+                (SchemaField('duration', 'INTEGER', 'NULLABLE', None, None, (), None), 
+                SchemaField('date', 'DATE', 'NULLABLE', None, None, (), None)), None), 
+            SchemaField('addresses', 'STRING', 'REPEATED', None, None, (), None), 
+            SchemaField('name', 'STRING', 'NULLABLE', None, None, (), None)]
 
+    def test_nested_schema2(self):
+        [SchemaField(
+                'jobs', 'RECORD', 'REPEATED', fields = (
+                (SchemaField('duration', 'INTEGER', 'NULLABLE', None, None, (), None), 
+                SchemaField('date', 'DATE', 'NULLABLE', None, None, (), None)), None)), 
+            SchemaField('addresses', 'STRING', 'REPEATED', None, None, (), None), 
+            SchemaField('name', 'STRING', 'NULLABLE', None, None, (), None)]
 
 if __name__ == '__main__':
     unittest.main()
