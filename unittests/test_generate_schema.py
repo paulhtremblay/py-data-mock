@@ -40,6 +40,12 @@ class TestGenearteData(unittest.TestCase):
                     jobs = j.value
         self.assertEqual(all_names, ['jobs', 'addresses', 'name'])
 
+    def test_generate_data_fake_data(self):
+        l = generate_data.generate_data(schema = SCHEMA2, num_rows = 10)
+        for i in l:
+            for j in i:
+                pass
+
 
 if __name__ == '__main__':
     unittest.main()
