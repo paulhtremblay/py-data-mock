@@ -189,3 +189,58 @@ def generate_data(schema:list, num_rows:int = 1) -> types.GeneratorType:
             for key in r.keys():
                 l.append(Data(name = key,value = r[key]))
         yield l
+
+class GenerateDataFromSchema:
+
+    def __init__(self, num_rows, schema):
+        mock_bq = MakeMockBQData()
+        self.convert_dict = {
+                'STRING': mock_bq.make_STRING,
+                'DATE': mock_bq.make_DATE,
+                'INTEGER': mock_bq.make_INT64
+                }
+        self.num_rows = num_rows
+        self.schema = schema
+
+    def generate_field(self, f:SchemaField) -> dict:
+        """
+        simple case: {field: STRING}, in which case, the stack is 
+        and remains 1,and only else is executed
+
+        recursive case: {field: fields[]}, in which case, fields is 
+        added to to the stack as a list of dicts. If all of these dicts
+        are simple and have no fields, then the stack is exhausted. Otherwise,
+        the stack is added to, and so on
+        """
+        final = {f.name:None}
+        stack = [(f, f.name, final)]
+        while stack:
+            current = stack.pop()
+            current_o = current[0]
+            current_name = current[1]
+            if len(current_o.fields) != 0:
+                current[2][current_name] = []
+                for i in current_o.fields[0]:
+                    temp = {i.name:None}
+                    current[2][current_name].append(temp)
+                    stack.append((i, i.name, temp))
+            else:
+                current[2][current_name] = generate_value(field_type = current_o.field_type,
+                        name = current_o.name, mode = current_o.mode)
+        return final
+
+    def generate_data(self) -> types.GeneratorType:
+        for i in range(self.num_rows):
+            l = []
+            for j in self.schema:
+                r = self.generate_field(j)
+                for key in r.keys():
+                    l.append(Data(name = key,value = r[key]))
+            yield l
+
+    def generate_value(self, name, field_type, mode):
+        method = self.convert_dict[field_type]
+        return method(name = name, mode = mode)
+
+    def query_results(self):
+        return self.generate_data(), {'total_rows':self.num_rows}
