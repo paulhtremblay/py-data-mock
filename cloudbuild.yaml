@@ -1,0 +1,41 @@
+steps:
+   - name: python
+     entrypoint: python
+     args: ["-m", "pip", "install", "--upgrade", "pip"]     
+   - name: python
+     entrypoint: python
+     args: ["-m", "pip", "install", "build", "pytest", "twine", "--user"]
+   - name: python
+     entrypoint: python
+     args: ["-m", "pytest", 'unittests/' ]
+   - name: python
+     id: "BUILD WHEEL"
+     entrypoint: python
+     args: ["-m", "build"]
+
+   - name: python
+     id: "push to pypi"
+     entrypoint: python
+     args:
+     - '-m'
+     - 'twine'
+     - 'upload'
+     - '-r'
+     - 'pypi'
+     - "-u" 
+     - "$_PYPI_USERNAME"
+     - "-p" 
+     - "$_PYPI_PASSWORD"
+     - 'dist/*'
+     waitFor: ["BUILD WHEEL"]
+
+#artifacts:
+#   python_packages:
+#   - repository: "https://us-west1-python.pkg.dev/paul-henry-tremblay/py-data-mock"
+#     paths: ["dist/*"]
+
+artifacts:
+  objects:
+    location: gs://paul-henry-tremblay-general/
+    paths:
+      - "dist/*"
