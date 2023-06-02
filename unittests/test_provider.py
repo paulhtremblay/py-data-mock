@@ -6,7 +6,7 @@ import unittest
 
 import data_mock.mock_helpers.provider as provider
 
-class TestCustom1:
+class CustomProvider1:
 
     def __init__(self):
         self.__call_no = 0
@@ -43,7 +43,7 @@ class TestProvider(unittest.TestCase):
 
     def test_custom_provider(self):
         provide = provider.ProvideData()
-        provide.add_data(data = TestCustom1(), tag = 'f')
+        provide.add_data(data = CustomProvider1(), tag = 'f')
         g, metadata = provide.get_data('f')
         self.assertTrue(isinstance(g,  types.GeneratorType))
         self.assertEqual(metadata['total_rows'], 0)
