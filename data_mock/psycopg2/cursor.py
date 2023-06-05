@@ -6,8 +6,8 @@ import data_mock.exceptions as exceptions
 
 class Cursor:
 
-    def __init__(self, cursor_factory = None, mock_data = None, use_dict = False, 
-                data_provider = None,  *args, **kwargs):
+    def __init__(self, mock_data = None,  
+                data_provider = None):
         if data_provider != None:
             self.data_provider = data_provider
         else:
@@ -41,16 +41,14 @@ class Cursor:
     def register_initial_mock_data(self):
         pass
 
-    def register_mock_data(self, key, mock_data):
+    def register_mock_data(self, key:str, mock_data:list):
         self.data_provider.add_data(data = mock_data, tag = key)
-
 
     def construct_row(self, row:list) -> tuple:
         new_row = []
         for data_obj in row:
             new_row.append(data_obj.value)
         return tuple(new_row)
-
 
     def fetchmany(self, n:int)-> list:
         counter = 0
