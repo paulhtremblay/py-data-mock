@@ -22,7 +22,7 @@ class Cursor:
     def __exit__(self, type, value, traceback):
         pass
 
-    def execute(self, query:str):
+    def execute(self, query:str, vars:tuple = None):
         """
         all args ignored except query
         """
@@ -64,6 +64,114 @@ class Cursor:
                 return final
         return final
 
+    def fetchone(self) -> list:
+        return self.fetchmany(n=1)
+
+    def fetchall(self)-> list:
+        final = []
+        if not hasattr(self, 'data'):
+            raise ProgrammingError('no result to fetch')
+        if not self.data:
+            return
+        for counter, row in enumerate(self.data):
+            new_row = self.construct_row(row)
+            final.append(new_row)
+        return final
+
+    def close(self, *args, **kwargs):
+        pass
+
+    def arraysize(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def binary_types(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def callproc(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def cast(self, *args, **kwargs):
+         raise NotImplementedError()
+
+
+    def closed(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def connection(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def copy_expert(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def copy_from(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def copy_to(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def description(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def executemany(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def itersize(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def lastrowid(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def mogrify(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def name(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def nextset(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def pgresult_ptr(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def query(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def row_factory(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def rowcount(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def rownumber(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def scroll(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def scrollable(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def setinputsizes(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def setoutputsize(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def statusmessage(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def string_types(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def typecaster(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def tzinfo_factory(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def withhold(self, *args, **kwargs):
+         raise NotImplementedError()
+
     def _get_sql_key(self, query:str)-> str:
         for line in query.split('\n'):
             if 'py-postgres-mock-register:' in line:
@@ -71,3 +179,4 @@ class Cursor:
                 if len(fields) != 2:
                     raise exceptions.InvalidMockData('hint should be in format "py-postgres-mock-register: key"')
                 return fields[1].strip()
+

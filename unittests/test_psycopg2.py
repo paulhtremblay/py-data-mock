@@ -348,6 +348,34 @@ class TestResults(unittest.TestCase):
                 for row in rows:
                     self.assertTrue('default' in row.keys())
 
+    def test_fetch_with_one_row_returns_one_row_for_fetchall(self):
+        mock_data = [
+        [('field1', 'value1'), ('field2', 'value2')],
+            ]
+        connection = data_mock.psycopg2.connect( user='x', password='x', 
+            host='x', port='x', database='x', mock_data = mock_data)
+        cursor = connection.cursor()
+        cursor.execute(query = 'some query')
+        number_rows = 0
+        rows = cursor.fetchall()
+        for i in rows:
+            number_rows += 1
+        self.assertEqual(number_rows, 1)
+
+    def test_fetch_with_one_row_returns_one_row_for_fetchone(self):
+        mock_data = [
+        [('field1', 'value1'), ('field2', 'value2')],
+            ]
+        connection = data_mock.psycopg2.connect( user='x', password='x', 
+            host='x', port='x', database='x', mock_data = mock_data)
+        cursor = connection.cursor()
+        cursor.execute(query = 'some query')
+        number_rows = 0
+        rows = cursor.fetchone()
+        for i in rows:
+            number_rows += 1
+        self.assertEqual(number_rows, 1)
+
 
 if __name__ == '__main__':
     unittest.main()
