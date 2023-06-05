@@ -22,7 +22,7 @@ class Cursor:
     def __exit__(self, type, value, traceback):
         pass
 
-    def execute(self, query:str):
+    def execute(self, query:str, vars:tuple = None):
         """
         all args ignored except query
         """
