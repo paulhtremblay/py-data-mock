@@ -2,8 +2,7 @@ from setuptools import setup
 
 setup(
     name='py-data-mock',
-    version='0.0.5',    
-    scripts=['data_mock/scripts/mkmock.py'],
+    version='0.0.6',    
     description='Mock Data',
     url='https://github.com/paulhtremblay/py-data-mock',
     author='Henry Tremblay',
@@ -11,6 +10,7 @@ setup(
     license='GNU GENERAL PUBLIC LICENSE',
     packages=['data_mock/google/cloud/bigquery/job', 'data_mock/google/cloud/bigquery',
         'data_mock/google/cloud/storage','data_mock/mock_helpers', 'data_mock',
+        'data_mock/psycopg2/',
         ],
      classifiers=[
         'Programming Language :: Python :: 3',
