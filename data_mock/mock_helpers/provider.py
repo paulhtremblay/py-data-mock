@@ -5,6 +5,18 @@ from data_mock.google.cloud import bigquery
 #from bigquery import SchemaField
 import types
 
+class EmptyGenerator:
+
+    def __init__(self):
+        self.metadata = {}
+
+    def gen_func(self):
+        for i in range(0):
+            yield i
+
+    def query_results(self):
+        return self.gen_func(), {'total_rows':0, 'schema' : None}
+
 class QueryResultsFromList:
 
     def __init__(self, data):
@@ -12,6 +24,9 @@ class QueryResultsFromList:
         self.make_schema()
 
     def make_schema(self):
+        if len(self.data) == 0:
+            self.schema = None
+            return
         schema = []
         for i in self.data[0]:
             schema.append(bigquery.SchemaField(name = i[0], field_type = type(i[1])))
