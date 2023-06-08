@@ -1,18 +1,19 @@
-from .  import table as _table
-from .job import query as job_query
-from . import retry as retries
-from . import dataset as _dataset
-
-import data_mock.mock_helpers.provider as provider
 import data_mock.google.cloud.bigquery.job as job
+import data_mock.google.cloud.bigquery.job.query as job_query
+import data_mock.google.cloud.bigquery.dataset as _dataset
+import data_mock.google.cloud.bigquery.retry as retries
 from data_mock.google.cloud.bigquery.job  import LoadJobConfig
 from data_mock.google.cloud.bigquery.table  import Table
 from data_mock.google.cloud.bigquery.table  import TableReference
 from data_mock.google.cloud.bigquery.table  import TableListItem
+from data_mock.google.cloud.bigquery.table  import RowIterator
+
 from data_mock.exceptions import InvalidMockData
 import data_mock.exceptions as exceptions
 
 from typing import Union, Optional, Sequence, Type, TypeVar, Optional
+
+import data_mock.mock_helpers.provider as provider
 
 # these values do nothing
 DEFAULT_RETRY = None
@@ -48,7 +49,7 @@ class Client:
         retry: Optional[retries.Retry] = DEFAULT_RETRY,
         timeout: Optional[TimeoutType] = DEFAULT_TIMEOUT,
         job_retry: Optional[retries.Retry] = DEFAULT_JOB_RETRY,
-              ) -> _table.RowIterator:
+              ) -> RowIterator:
         """
         all args ignored except query
         """
@@ -62,10 +63,10 @@ class Client:
                 data, m = self.data_provider.get_data('default')
             except TypeError:
                 raise exceptions.InvalidMockData(f'bad class')
-        return _table.RowIterator(data = data, m = m)
+        return RowIterator(data = data, m = m)
 
     def create_table(self,
-            table: Union[str, _table.Table, _table.TableReference, _table.TableListItem],
+            table: Union[str, Table, TableReference, TableListItem],
             exists_ok: bool = False,
             retry: Optional[retries.Retry] = DEFAULT_RETRY,
             timeout: Optional[TimeoutType] = DEFAULT_TIMEOUT,
@@ -77,17 +78,18 @@ class Client:
         if  hasattr(table, 'dataset_id')\
                 and hasattr(table, 'project')\
                 and  hasattr(table, 'schema'):
-                    table_obj = table
+                    pass
         else:
-            table_obj = _table.Table(table)
+            table_obj = Table(table)
+            table = table_obj
 
         if self.__list_of_tables == None:
             self.__list_of_tables = []
         self.__list_of_tables.append(table) 
-        return table_obj
+        return table
 
     def delete_table(self,
-            table: Union[_table.Table, _table.TableReference, _table.TableListItem, str],
+            table: Union[Table, TableReference, TableListItem, str],
             retry: Optional[retries.Retry] = DEFAULT_RETRY,
             timeout: Optional[TimeoutType] = DEFAULT_TIMEOUT,
             not_found_ok: bool = False,
@@ -122,7 +124,7 @@ class Client:
     def load_table_from_uri(
         self,
         source_uris: Union[str, Sequence[str]],
-        destination: Union[_table.Table, _table.TableReference, _table.TableListItem, str],
+        destination: Union[Table, TableReference, TableListItem, str],
         job_id: Optional[str] = None,
         job_id_prefix: Optional[str] = None,
         location: Optional[str] = None,
