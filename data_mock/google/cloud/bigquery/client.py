@@ -2,6 +2,7 @@ from .  import table as _table
 from .job import query as job_query
 from . import retry as retries
 from . import dataset as _dataset
+
 import data_mock.mock_helpers.provider as provider
 import data_mock.google.cloud.bigquery.job as job
 from data_mock.google.cloud.bigquery.job  import LoadJobConfig
@@ -11,7 +12,7 @@ from data_mock.google.cloud.bigquery.table  import TableListItem
 from data_mock.exceptions import InvalidMockData
 import data_mock.exceptions as exceptions
 
-from typing import Union, Optional, Sequence
+from typing import Union, Optional, Sequence, Type, TypeVar, Optional
 
 # these values do nothing
 DEFAULT_RETRY = None
@@ -19,9 +20,11 @@ DEFAULT_TIMEOUT = None
 DEFAULT_JOB_RETRY = None
 TimeoutType = Union[float, None]
 
+V = TypeVar('V')
+
 class Client:
 
-    def __init__(self, project = None, mock_data = None, 
+    def __init__(self, project:Union[str, None] = None, mock_data = None, 
             mock_list_of_tables = None):
         self.project = project
         self.__list_of_tables = mock_list_of_tables
@@ -30,7 +33,7 @@ class Client:
             self.data_provider.add_data(data = mock_data, tag = 'default')
         self.register_initial_mock_data()
 
-    def register_mock_data(self, key, mock_data):
+    def register_mock_data(self, key:str, mock_data:Union[list,V]):
         self.data_provider.add_data(data = mock_data, tag = key)
 
     def register_initial_mock_data(self):
@@ -38,14 +41,14 @@ class Client:
 
     def query(self, query,
         job_config: Optional[job_query.QueryJobConfig] = None,
-        job_id: str = None,
-        job_id_prefix: str = None,
-        location: str = None,
-        project: str = None,
-        retry: retries.Retry = DEFAULT_RETRY,
-        timeout: TimeoutType = DEFAULT_TIMEOUT,
-        job_retry: retries.Retry = DEFAULT_JOB_RETRY,
-              ):
+        job_id: Optional[str] = None,
+        job_id_prefix: Optional[str] = None,
+        location: Optional[str] = None,
+        project: Optional[str] = None,
+        retry: Optional[retries.Retry] = DEFAULT_RETRY,
+        timeout: Optional[TimeoutType] = DEFAULT_TIMEOUT,
+        job_retry: Optional[retries.Retry] = DEFAULT_JOB_RETRY,
+              ) -> _table.RowIterator:
         """
         all args ignored except query
         """
@@ -64,9 +67,9 @@ class Client:
     def create_table(self,
             table: Union[str, _table.Table, _table.TableReference, _table.TableListItem],
             exists_ok: bool = False,
-            retry: retries.Retry = DEFAULT_RETRY,
-            timeout: TimeoutType = DEFAULT_TIMEOUT,
-        ):
+            retry: Optional[retries.Retry] = DEFAULT_RETRY,
+            timeout: Optional[TimeoutType] = DEFAULT_TIMEOUT,
+        ) -> Union[str, Table, TableReference, TableListItem]:
         """
         all args ignored
         """
@@ -74,20 +77,19 @@ class Client:
         if  hasattr(table, 'dataset_id')\
                 and hasattr(table, 'project')\
                 and  hasattr(table, 'schema'):
-                    pass
+                    table_obj = table
         else:
             table_obj = _table.Table(table)
-            table = table_obj
 
         if self.__list_of_tables == None:
             self.__list_of_tables = []
         self.__list_of_tables.append(table) 
-        return table
+        return table_obj
 
     def delete_table(self,
             table: Union[_table.Table, _table.TableReference, _table.TableListItem, str],
-            retry: retries.Retry = DEFAULT_RETRY,
-            timeout: TimeoutType = DEFAULT_TIMEOUT,
+            retry: Optional[retries.Retry] = DEFAULT_RETRY,
+            timeout: Optional[TimeoutType] = DEFAULT_TIMEOUT,
             not_found_ok: bool = False,
         ):
         """
@@ -109,10 +111,10 @@ class Client:
     def list_tables(self,
          dataset: Union[_dataset.Dataset, _dataset.DatasetReference, _dataset.DatasetListItem, str],
          max_results: Optional[int] = None,
-         page_token: str = None,
-         retry: retries.Retry = DEFAULT_RETRY,
-         timeout: TimeoutType = DEFAULT_TIMEOUT,
-                    page_size: Optional[int] = None):
+         page_token: Optional[str] = None,
+         retry: Optional[retries.Retry] = DEFAULT_RETRY,
+         timeout: Optional[TimeoutType] = DEFAULT_TIMEOUT,
+                    page_size: Optional[int] = None) -> list:
         if self.__list_of_tables == None:
             return []
         return self.__list_of_tables
@@ -121,13 +123,13 @@ class Client:
         self,
         source_uris: Union[str, Sequence[str]],
         destination: Union[_table.Table, _table.TableReference, _table.TableListItem, str],
-        job_id: str = None,
-        job_id_prefix: str = None,
-        location: str = None,
-        project: str = None,
-        job_config: LoadJobConfig = None,
-        retry: retries.Retry = DEFAULT_RETRY,
-        timeout: TimeoutType = DEFAULT_TIMEOUT,
+        job_id: Optional[str] = None,
+        job_id_prefix: Optional[str] = None,
+        location: Optional[str] = None,
+        project: Optional[str] = None,
+        job_config: Optional[LoadJobConfig] = None,
+        retry: Optional[retries.Retry] = DEFAULT_RETRY,
+        timeout: Optional[TimeoutType] = DEFAULT_TIMEOUT,
         ) -> job.LoadJob:
         load_job = job.LoadJob(job_ref = None, source_uris = source_uris, destination = destination, 
             new_job_config = None)
@@ -139,9 +141,9 @@ class Client:
     def get_table(
         self,
         table: Union[Table, TableReference, TableListItem, str],
-        retry: retries.Retry = DEFAULT_RETRY,
-        timeout: TimeoutType = DEFAULT_TIMEOUT,
-    ) -> Table:
+        retry: Optional[retries.Retry] = DEFAULT_RETRY,
+        timeout: Optional[TimeoutType] = DEFAULT_TIMEOUT,
+    ) -> Union[Table, str]:
         if isinstance(table,str):
             table_ref = self._mock_make_table_ref(table_id = table)
         else:
@@ -165,11 +167,12 @@ class Client:
                 raise ValueError('bad sring')
 
 
-    def _get_sql_key(self, query:str)-> str:
+    def _get_sql_key(self, query:str)-> Union[str, None]:
         for line in query.split('\n'):
             if 'py-bigquery-mock-register:' in line:
                 fields = line.split(':')
                 if len(fields) != 2:
                     raise exceptions.InvalidMockData('hint should be in format "py-bigquery-mock-register: key"')
                 return fields[1].strip()
+        return None
 

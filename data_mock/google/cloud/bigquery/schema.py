@@ -1,28 +1,20 @@
-from typing import Any, Dict, Iterable, Union
+from typing import Any, Dict, Iterable, Union, Optional
 import enum
 
 class SchemaField(object):
-
-    """
-    def __init__(self, name, field_type, mode = 'Nullable',
-                 fields = None):
-        self.field_type = field_type
-        self.name = name
-        self.mode = mode
-    """
 
     def __init__(
         self,
         name: str,
         field_type: str,
         mode: str = "NULLABLE",
-        default_value_expression: str = None,
+        default_value_expression: Optional[str] = None,
         description: str = '',
         fields: Iterable["SchemaField"] = (),
-        policy_tags: str = None,
-        precision: int = None,
-        scale: int = None,
-        max_length: int = None,
+        policy_tags: Optional[str] = None,
+        precision: Optional[int] = None,
+        scale: Optional[int] = None,
+        max_length: Optional[int] = None,
     ):
         self.mode = mode
         self.field_type = field_type
