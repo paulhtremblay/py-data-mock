@@ -52,5 +52,16 @@ class TestProvider(unittest.TestCase):
             for j in i:
                 self.assertTrue(hasattr(j,'name'))
 
+    def test_empty_list_returns_generator(self):
+        provide = provider.ProvideData()
+        data = []
+        provide.add_data(data = data, tag = 'default')
+        num_rows = 0
+        g, metadata = provide.get_data('default')
+        self.assertTrue(isinstance(g,  types.GeneratorType))
+        for i in g:
+            num_rows += 1
+        self.assertEqual(num_rows, 0)
+
 if __name__ == '__main__':
     unittest.main()
