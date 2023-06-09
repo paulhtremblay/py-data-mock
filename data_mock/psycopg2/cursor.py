@@ -1,3 +1,5 @@
+from typing import Union
+
 from collections import OrderedDict
 
 import data_mock.mock_helpers.provider as provider
@@ -22,7 +24,7 @@ class Cursor:
     def __exit__(self, type, value, traceback):
         pass
 
-    def execute(self, query:str, vars:tuple = None):
+    def execute(self, query:str, vars:Union[tuple, None] = None):
         """
         all args ignored except query
         """
@@ -56,7 +58,7 @@ class Cursor:
         if not hasattr(self, 'data'):
             raise ProgrammingError('no result to fetch')
         if not self.data:
-            return
+            return []
         for counter, row in enumerate(self.data):
             new_row = self.construct_row(row)
             final.append(new_row)
@@ -72,7 +74,7 @@ class Cursor:
         if not hasattr(self, 'data'):
             raise ProgrammingError('no result to fetch')
         if not self.data:
-            return
+            return []
         for counter, row in enumerate(self.data):
             new_row = self.construct_row(row)
             final.append(new_row)
@@ -172,11 +174,12 @@ class Cursor:
     def withhold(self, *args, **kwargs):
          raise NotImplementedError()
 
-    def _get_sql_key(self, query:str)-> str:
+    def _get_sql_key(self, query:str)-> Union[str, None]:
         for line in query.split('\n'):
             if 'py-postgres-mock-register:' in line:
                 fields = line.split(':')
                 if len(fields) != 2:
                     raise exceptions.InvalidMockData('hint should be in format "py-postgres-mock-register: key"')
                 return fields[1].strip()
+        return None
 
