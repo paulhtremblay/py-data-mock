@@ -140,7 +140,7 @@ class Connect:
          raise NotImplementedError()
 
     def rollback(self, *args, **kwargs):
-         raise NotImplementedError()
+        pass
 
     def server_version(self, *args, **kwargs):
          raise NotImplementedError()

@@ -18,6 +18,7 @@ class Cursor:
             self.data_provider.add_data(data = mock_data, tag = 'default')
         self.register_initial_mock_data()
 
+
     def __enter__(self):
         return self
 
