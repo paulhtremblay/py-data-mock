@@ -1,11 +1,14 @@
 import types
-from typing import Union, List
+from typing import Union, List, Iterator, Type, Tuple, TypeVar
 import data_mock.exceptions
 from data_mock.google.cloud import bigquery
 #from bigquery import SchemaField
 import types
 
+V = TypeVar('V')
+
 class EmptyGenerator:
+    #not used!
 
     def __init__(self):
         self.metadata = {}
@@ -19,20 +22,20 @@ class EmptyGenerator:
 
 class QueryResultsFromList:
 
-    def __init__(self, data):
+    def __init__(self, data:list):
         self.data = data
         self.make_schema()
 
-    def make_schema(self):
+    def make_schema(self) -> None :
         if len(self.data) == 0:
             self.schema = None
-            return
+            return None
         schema = []
         for i in self.data[0]:
-            schema.append(bigquery.SchemaField(name = i[0], field_type = type(i[1])))
+            schema.append(bigquery.SchemaField(name = i[0], field_type = str(type(i[1]))))
         self.schema = schema
 
-    def gen_func(self):
+    def gen_func(self) -> Iterator[List]:
         for i in self.data:
             l = []
             for j in i:
@@ -59,13 +62,13 @@ class ProvideData:
         self._test_valid_data(data)
         self.dict[tag] = QueryResultsFromList(data = data)
 
-    def add_data(self, data:List, tag:str):
+    def add_data(self, data:Union[List, V], tag:str):
         if isinstance(data, list):
             self.data_from_list(data, tag)
         else:
             self.dict[tag] = data
 
-    def get_data(self, key:str) -> Union[None, types.GeneratorType]:
+    def get_data(self, key:str) -> Union[Tuple[None, None], Tuple[types.GeneratorType, dict]]:
         if not self.dict.get(key):
             return None, None
         if not  hasattr(self.dict[key], 'query_results'):
@@ -73,8 +76,6 @@ class ProvideData:
         if not isinstance(self.dict[key].query_results, types.MethodType):
             msg = '"query_results" is  not a method; did you pass the class rather than class()?'
             raise data_mock.exceptions.InvalidMockData(msg)
-
-
         return self.dict[key].query_results()
 
     def _test_valid_data(self, data):
