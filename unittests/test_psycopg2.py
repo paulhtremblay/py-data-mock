@@ -376,6 +376,16 @@ class TestResults(unittest.TestCase):
             number_rows += 1
         self.assertEqual(number_rows, 1)
 
+    def test_no_data_fetchall(self):
+        mock_data = []
+        connection = data_mock.psycopg2.connect( user='x', password='x', 
+            host='x', port='x', database='x', mock_data = mock_data)
+        cursor = connection.cursor()
+        cursor.execute(query = 'some query')
+        rows = cursor.fetchall()
+        for row in rows:
+            pass
+
 
 if __name__ == '__main__':
     unittest.main()
