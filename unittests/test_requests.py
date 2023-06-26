@@ -9,6 +9,14 @@ import data_mock.requests
 
 import types
 
+class ProvideData(data_mock.requests.Requests):
+
+    def register_initial_mock_data(self):
+        end_point = 'https://mock-endpoint'
+        json_data = {'fields':'value'}
+        self.register_data(status_code = 200, url = end_point,
+                json_data = json_data)
+
 class TestRequests(unittest.TestCase):
 
     def setUp(self):
@@ -59,6 +67,14 @@ class TestRequests(unittest.TestCase):
         self.assertEqual(resp.status_code, 401)
         self.assertRaises(json.decoder.JSONDecodeError, resp.json)
         self.assertEqual(resp.ok, False)
+
+    def test_register200_with_json_class(self):
+        requests = ProvideData()
+        end_point = 'https://mock-endpoint'
+        json_data = {'fields':'value'}
+        resp = requests.get(end_point)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(json_data, resp.json())
 
 if __name__ == '__main__':
     unittest.main()
