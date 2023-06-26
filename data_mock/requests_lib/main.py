@@ -31,6 +31,7 @@ class Requests:
         self.return_dict = {}
         self.default_dict = {'reason':'OK', 'status_code':200, 'json_data': {}, 
                 'text' : str({}), 'ok':True}
+        self.register_initial_mock_data()
 
     def register_initial_mock_data(self):
         pass
