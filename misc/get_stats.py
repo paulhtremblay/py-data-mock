@@ -128,7 +128,7 @@ def get_git_stats(start_date, end_date, emails, projects):
 
         start_date += datetime.timedelta(days = 1)
     dates, y_values = get_stats_by_user_date(d)
-    make_graph(dates = dates, y_values = y_values)
+    return dates, y_values
 
 def summary(start_date, end_date, author, the_dir = None):
     if not the_dir:
@@ -155,13 +155,14 @@ def main(args):
                 the_dir = args.target_dir
                 )
     elif args.action == 'stats':
-        get_git_stats(
+        dates, y_values = get_git_stats(
                 start_date = args.start_date,
                 end_date = args.end_date,
                 emails = args.emails,
                 projects = args.dirs
                 )
 
+        make_graph(dates = dates, y_values = y_values)
 
 if __name__ == '__main__':
     args = _get_args()
