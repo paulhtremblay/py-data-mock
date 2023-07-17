@@ -147,6 +147,7 @@ def to_csv(l, file_path):
 def to_sqlite(db_name, csv_path, table_name ):
     #initial dump
     #C:\sqlite3.exe DBNAME.db ".read DBSCRIPT.sql"
+    #git log --author="_Your_Name_Here_" --pretty=tformat: --numstat | awk '{ add += $1; subs += $2; loc += $1 - $2 } END { printf "added lines: %s, removed lines: %s, total lines: %s\n", add, subs, loc }' -
 
     args = ['sqlite3', db_name, '-cmd', 
                 '.mode csv',
