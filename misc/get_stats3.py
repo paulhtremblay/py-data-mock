@@ -4,6 +4,7 @@ import argparse
 import subprocess
 import tempfile
 import sqlite3
+import re
 
 import csv
 
@@ -69,6 +70,26 @@ class LineInfo:
         self.file_ext = None
         self.parse_s(s)
 
+    def get_name(self, s):
+        s = s[7:]
+        pattern = re.compile(r'(.*?)<(.*?)>')
+        search_obj = pattern.search(s)
+        if search_obj:
+            self.name = search_obj.group(1).strip()
+            self.email = search_obj.group(2)
+            fields = self.name.split()
+            if len(fields) == 2:
+                self.first_name = fields[0].strip()
+                self.last_name = fields[1].strip()
+            else:
+                self.first_name = None
+                self.last_name = None
+        else:
+            self.name = None
+            self.email = None
+            self.first_name = None
+            self.last_name = None
+
     def parse_s(self, s):
         if s[0:6] == 'commit':
             self.commit = True
@@ -76,6 +97,7 @@ class LineInfo:
             self.unknown = True
         elif s[0:7] == 'Author:':
             self.author = s[8:]
+            self.get_name(s)
         elif s[0:5] == 'Date:':
             self.date = datetime.datetime.strptime(s[5:].strip(), '%Y-%m-%d %H:%M:%S')
         elif s.strip() == '':
@@ -137,6 +159,10 @@ def handle_line(list_, line_info, state):
         list_.append({'files':{}})
     elif line_info.author:
         list_[-1]['author'] = line_info.author
+        list_[-1]['email'] = line_info.email
+        list_[-1]['name'] = line_info.name
+        list_[-1]['first_name'] = line_info.first_name
+        list_[-1]['last_name'] = line_info.last_name
     elif line_info.date:
         list_[-1]['date'] = line_info.date
     elif line_info.body_line:
@@ -182,7 +208,12 @@ def to_csv(l, file_path, verbosity = 0):
             date = dict_['date'].strftime('%Y-%m-%d %H:%M:%S')
             for path in dict_['files'].keys():
                 counter += 1
-                row = [author, date, path, dict_['files'][path]['ext'], 
+                row = [author, 
+                       dict_['name'], 
+                       dict_['first_name'],
+                       dict_['last_name'],
+                       dict_['email'],
+                       date, path, dict_['files'][path]['ext'], 
                        dict_['files'][path]['lines_added'] + dict_['files'][path]['lines_subtracted'] + dict_['files'][path]['lines_added_and_subtracted']]
                 csv_writer.writerow(row)
     if verbosity > 1:
@@ -216,7 +247,11 @@ def init(dirs, db_path, table_name, verbosity = 0):
     cur = con.cursor()
     sql = f"""
 create table if not exists {table_name}
-(name text not null,
+(author text not null,
+name text,
+first_name text,
+last_name text,
+email text,
 	date datetime not null,
 	path text not null,
 	extention text,
