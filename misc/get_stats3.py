@@ -197,6 +197,18 @@ def get_log_info_file(git_o):
     info = git_o.log('--stat', "--date=format:%Y-%m-%d %H:%M:%S")
     return info
 
+def _make_row(dict_, path):
+    author = dict_['author']
+    date = dict_['date'].strftime('%Y-%m-%d %H:%M:%S')
+    row = [author, 
+           dict_['name'], 
+           dict_['first_name'],
+           dict_['last_name'],
+           dict_['email'],
+           date, path, dict_['files'][path]['ext'], 
+           dict_['files'][path]['lines_added'] + dict_['files'][path]['lines_subtracted'] + dict_['files'][path]['lines_added_and_subtracted']]
+    return row
+
 def to_csv(l, file_path, verbosity = 0):
     counter = 0
     with open(file_path, 'w') as write_obj:
@@ -204,17 +216,9 @@ def to_csv(l, file_path, verbosity = 0):
         for dict_ in l:
             if not dict_.get('author'):
                 continue
-            author = dict_['author']
-            date = dict_['date'].strftime('%Y-%m-%d %H:%M:%S')
             for path in dict_['files'].keys():
                 counter += 1
-                row = [author, 
-                       dict_['name'], 
-                       dict_['first_name'],
-                       dict_['last_name'],
-                       dict_['email'],
-                       date, path, dict_['files'][path]['ext'], 
-                       dict_['files'][path]['lines_added'] + dict_['files'][path]['lines_subtracted'] + dict_['files'][path]['lines_added_and_subtracted']]
+                row = _make_row(dict_ = dict_, path = path)
                 csv_writer.writerow(row)
     if verbosity > 1:
         print(f'wrote {counter} lines to csv {file_path}')
@@ -284,18 +288,15 @@ email text,
     os.close(fh)
     os.remove(temp_path)
 
-def flatte_list(l, verbosity = 0):
+def flatten_list(l, verbosity = 0):
     final = []
     counter = 0
     for dict_ in l:
         if not dict_.get('author'):
             continue
-        author = dict_['author']
-        date = dict_['date'].strftime('%Y-%m-%d %H:%M:%S')
         for path in dict_['files'].keys():
             counter += 1
-            row = [author, date, path, dict_['files'][path]['ext'], 
-                   dict_['files'][path]['lines_added'] + dict_['files'][path]['lines_subtracted'] + dict_['files'][path]['lines_added_and_subtracted']]
+            row = _make_row(dict_ = dict_, path = path)
             final.append(row)
     if verbosity > 1:
         print(f'wrote {counter} lines ')
@@ -307,9 +308,20 @@ def make_delete_string(table_name, start_date, end_date):
 
 def make_insert_from_list(l, table_name, start_date, end_date):
     s = f'INSERT INTO {table_name} VALUES\n'
+    """
+(author text not null,
+name text,
+first_name text,
+last_name text,
+email text,
+	date datetime not null,
+	path text not null,
+	extention text,
+	lines_changed int
+    """
     temp_l = []
     for i in l:
-        temp_l.append(f"('{i[0]}', '{i[1]}', '{i[2]}', '{i[3]}', {i[4]})")
+        temp_l.append(f"('{i[0]}', '{i[1]}', '{i[2]}', '{i[3]}', '{i[4]}', '{i[5]}', '{i[6]}', '{i[7]}',{i[8]} )")
     s += ',\n'.join(temp_l)
     return s
 
@@ -330,7 +342,7 @@ def add(dirs, start_date, end_date, table_name , db_path,  verbosity = 0):
         list_.extend(l)
     if verbosity > 2:
         print(f'list has {len(list_)} dicts')
-    full_l = flatte_list(l = list_, verbosity = verbosity)
+    full_l = flatten_list(l = list_, verbosity = verbosity)
     insert_s = make_insert_from_list(full_l, table_name = table_name, 
                                      start_date = start_date,
                                      end_date = end_date)
