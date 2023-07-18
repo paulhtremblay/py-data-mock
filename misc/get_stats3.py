@@ -2,6 +2,8 @@ import os
 import datetime
 import argparse
 import subprocess
+import tempfile
+import sqlite3
 
 import csv
 
@@ -15,10 +17,37 @@ pp = pprint.PrettyPrinter(indent = 4)
 class BadStats(Exception):
     pass
 
-def _get_args():
+def my_date(s):
+    date = datetime.datetime.strptime(s, '%Y-%m-%d').date()
+    return date
+
+def _get_args_old():
     parser = argparse.ArgumentParser(description = 'get git status')
     parser.add_argument('--dirs', '-d', nargs="+", required = True)
     parser.add_argument('--verbosity', '-v', type = int, default = 0)
+    args = parser.parse_args()
+    return args
+
+def _get_args():
+    parser = argparse.ArgumentParser(description = 'get git status')
+    subparsers = parser.add_subparsers(dest='action', required = True)
+    summary = subparsers.add_parser('summary', help='summary')
+    init = subparsers.add_parser('init', help='stats')
+    add = subparsers.add_parser('add', help='stats')
+    add.add_argument('--start-date', '-s', required=True, 
+            type = my_date, help = 'date for start')
+    add.add_argument('--end-date', '-e', required=True, 
+            type = my_date, help = 'date for end')
+    summary.add_argument('--target-dir', '-t', required=False, 
+            type = str, help = 'dir for git')
+    init.add_argument('--dirs', '-d', nargs="+", required = True)
+    add.add_argument('--dirs', '-d', nargs="+", required = True)
+    add.add_argument('--verbosity', '-v', type = int, default = 0)
+    init.add_argument('--verbosity', '-v', type = int, default = 0)
+    init.add_argument('--db_path', '-dp', type = str, default = 'git_change.db')
+    init.add_argument('--table_name', '-tn', type = str, default = 'git')
+    add.add_argument('--db_path', '-dp', type = str, default = 'git_change.db')
+    add.add_argument('--table_name', '-tn', type = str, default = 'git')
     args = parser.parse_args()
     return args
 
@@ -52,12 +81,16 @@ class LineInfo:
         elif s.strip() == '':
             self.empty_line = True
         elif s[0:2] == '++':
+            assert False
             self.file_info = True
         elif s[0] == '+':
+            assert False
             self.added_line = True
         elif s[0:2] == '--':
+            assert False
             self.null = True
         elif s[0] == '-':
+            assert False
             self.subtracted_line = True
         elif '|'  in s and (self.state == 'commit_comment' or self.state == 'body'):
             self.body_line = True
@@ -127,12 +160,20 @@ def parse_file_log(s):
     
     return list_
 
+def get_log_info_file_append(git_o, start_date, end_date):
+    info = git_o.log('--stat', "--date=format:%Y-%m-%d %H:%M:%S", 
+                '--since={start_date}'.format(start_date = start_date.strftime('%Y-%m-%d')),
+        '--until={end_date}'.format(end_date = end_date.strftime('%Y-%m-%d')),
+                     )
+    return info
+
 def get_log_info_file(git_o):
     info = git_o.log('--stat', "--date=format:%Y-%m-%d %H:%M:%S")
     return info
 
-def to_csv(l, file_path):
-    with open('temp.csv', 'w') as write_obj:
+def to_csv(l, file_path, verbosity = 0):
+    counter = 0
+    with open(file_path, 'w') as write_obj:
         csv_writer = csv.writer(write_obj)
         for dict_ in l:
             if not dict_.get('author'):
@@ -140,39 +181,146 @@ def to_csv(l, file_path):
             author = dict_['author']
             date = dict_['date'].strftime('%Y-%m-%d %H:%M:%S')
             for path in dict_['files'].keys():
+                counter += 1
                 row = [author, date, path, dict_['files'][path]['ext'], 
                        dict_['files'][path]['lines_added'] + dict_['files'][path]['lines_subtracted'] + dict_['files'][path]['lines_added_and_subtracted']]
                 csv_writer.writerow(row)
+    if verbosity > 1:
+        print(f'wrote {counter} lines to csv {file_path}')
 
-def to_sqlite(db_name, csv_path, table_name ):
-    #initial dump
-    #C:\sqlite3.exe DBNAME.db ".read DBSCRIPT.sql"
+
+def _print_args(args):
+    print(f"executing {' '.join(args)}")
+
+def to_sqlite(db_path, csv_path, table_name, verbosity = 0):
     #git log --author="_Your_Name_Here_" --pretty=tformat: --numstat | awk '{ add += $1; subs += $2; loc += $1 - $2 } END { printf "added lines: %s, removed lines: %s, total lines: %s\n", add, subs, loc }' -
 
-    args = ['sqlite3', db_name, '-cmd', 
+    args = ['sqlite3', db_path, '-cmd', 
                 '.mode csv',
             f'.import {csv_path} {table_name}'
             ]
     result = subprocess.run(args,
                             capture_output=True)
+    if verbosity > 2:
+        _print_args(args)
     if result.returncode != 0:
         print(result.stderr)
         print(result.stdout)
 
-def get_stats(dirs, verbosity = 0):
-    csv_path = 'temp.csv'
+def init(dirs, db_path, table_name, verbosity = 0):
+    if os.path.isfile(db_path):
+        os.remove(db_path)
+        if verbosity > 0:
+            print(f'removed {db_path}')
+    con = sqlite3.connect(db_path)
+    cur = con.cursor()
+    sql = f"""
+create table if not exists {table_name}
+(name text not null,
+	date datetime not null,
+	path text not null,
+	extention text,
+	lines_changed int
+    )
+    """
+    cur.execute(sql)
+    if verbosity > 0:
+        print(f'created table {table_name}')
+    fh, temp_path = tempfile.mkstemp()
+    list_ = []
     for dir_ in dirs:
+        if verbosity > 0:
+            print(f'working on {dir_}')
         o = git.Git(dir_)
         log_string = get_log_info_file(git_o = o)
         l = parse_file_log(log_string)
-    to_csv(l, file_path = csv_path)
+        list_.extend(l)
+    if verbosity > 2:
+        print(f'list hasfiles has {len(list_)} dicts')
+    to_csv(list_, file_path = temp_path, verbosity = verbosity)
     to_sqlite(
-        db_name = 'git_change.db',
-        csv_path = csv_path,
-        table_name = 'git',
+        db_path = db_path,
+        csv_path = temp_path,
+        table_name = table_name,
+        verbosity = verbosity
         )
+    if verbosity > 0:
+        print(f'wrote lines to {db_path}.{table_name}')
+    os.close(fh)
+    os.remove(temp_path)
+
+def flatte_list(l, verbosity = 0):
+    final = []
+    counter = 0
+    for dict_ in l:
+        if not dict_.get('author'):
+            continue
+        author = dict_['author']
+        date = dict_['date'].strftime('%Y-%m-%d %H:%M:%S')
+        for path in dict_['files'].keys():
+            counter += 1
+            row = [author, date, path, dict_['files'][path]['ext'], 
+                   dict_['files'][path]['lines_added'] + dict_['files'][path]['lines_subtracted'] + dict_['files'][path]['lines_added_and_subtracted']]
+            final.append(row)
+    if verbosity > 1:
+        print(f'wrote {counter} lines ')
+    return final
+
+def make_delete_string(table_name, start_date, end_date):
+    s = f'DELETE FROM {table_name} WHERE date BETWEEN {start_date} AND {end_date};\n'
+    return s
+
+def make_insert_from_list(l, table_name, start_date, end_date):
+    s = f'INSERT INTO {table_name} VALUES\n'
+    temp_l = []
+    for i in l:
+        temp_l.append(f"('{i[0]}', '{i[1]}', '{i[2]}', '{i[3]}', {i[4]})")
+    s += ',\n'.join(temp_l)
+    return s
+
+def add(dirs, start_date, end_date, table_name , db_path,  verbosity = 0):
+    list_ = []
+    con = sqlite3.connect(db_path)
+    cur = con.cursor()
+    for dir_ in dirs:
+        if verbosity > 0:
+            print(f'working on {dir_}')
+        o = git.Git(dir_)
+        log_string = get_log_info_file_append(git_o = o,
+                                              start_date = start_date,
+                                              end_date = end_date)
+        if verbosity > 3:
+            print(f'log is {log_string}')
+        l = parse_file_log(log_string)
+        list_.extend(l)
+    if verbosity > 2:
+        print(f'list has {len(list_)} dicts')
+    full_l = flatte_list(l = list_, verbosity = verbosity)
+    insert_s = make_insert_from_list(full_l, table_name = table_name, 
+                                     start_date = start_date,
+                                     end_date = end_date)
+    delete_string = make_delete_string(table_name = table_name,
+                                       start_date = start_date,
+                                       end_date = end_date)
+    if verbosity > 3:
+        print('delete string is {delete_string}')
+    cur.execute(delete_string)
+    if verbosity > 3:
+        print(f'insert string is {insert_s})')
+    cur.execute(insert_s)
+
 
 if __name__ == '__main__':
     args = _get_args()
-    get_stats(dirs = args.dirs, verbosity = args.verbosity)
+    if args.action == 'init':
+        init(dirs = args.dirs, verbosity = args.verbosity,
+             db_path = args.db_path,
+             table_name = args.table_name)
+    else:
+        add(dirs = args.dirs, verbosity = args.verbosity,
+            start_date = args.start_date,
+            end_date = args.end_date,
+            db_path = args.db_path,
+            table_name = args.table_name
+            )
 
