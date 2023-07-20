@@ -52,7 +52,7 @@ def _get_args():
     args = parser.parse_args()
     return args
 
-class LineInfo2:
+class LineInfo:
 
     def __init__(self, s, state):
         self.commit = False
@@ -145,8 +145,8 @@ class LineInfo2:
 
 
 
-def get_line_info_state2(s, state):
-    li=  LineInfo2(s = s, state = state)
+def get_line_info_state(s, state):
+    li=  LineInfo(s = s, state = state)
     if li.commit:
         state = 'commit'
     elif state == 'commit' and li.unknown:
@@ -164,7 +164,7 @@ def get_line_info_state2(s, state):
     return li, state
 
 
-def handle_line2(dict_,line_info, state):
+def handle_line(dict_,line_info, state):
     if state == 'commit':
         pass
     elif line_info.author:
@@ -179,13 +179,13 @@ def handle_line2(dict_,line_info, state):
         dict_['num_insertions'] = line_info.num_inserts
         dict_['num_deletes'] = line_info.num_deletes
 
-def parse_file_log2(s):
+def parse_file_log(s):
     dict_ = {}
     lines = s.split('\n')
     state = None
     for i in lines:
-        line_info, state = get_line_info_state2(s = i, state = state)
-        handle_line2(dict_,line_info, state)
+        line_info, state = get_line_info_state(s = i, state = state)
+        handle_line(dict_,line_info, state)
     return dict_
 
 
@@ -209,7 +209,7 @@ def to_sqlite(db_path, csv_path, table_name, verbosity = 0):
         print(result.stderr)
         print(result.stdout)
 
-def get_log_info_file2(git_o, path):
+def get_log_info_file(git_o, path):
     info = git_o.log('--stat',  "--date=format:%Y-%m-%d %H:%M:%S",  path)
     return info
 
@@ -256,10 +256,10 @@ def init(dirs, db_path, table_name, verbosity = 0):
                     f = os.path.join(root, file)
                     if verbosity > 2:
                         print(f'working on {f}')
-                    log_string = get_log_info_file2(git_o = o, path = f)
+                    log_string = get_log_info_file(git_o = o, path = f)
                     if verbosity > 3:
                         print(log_string)
-                    info = parse_file_log2(log_string)
+                    info = parse_file_log(log_string)
                     if not info.get('author'):
                         continue
                     rel_path = _get_rel_path(path = f, target_dir = dir_)
