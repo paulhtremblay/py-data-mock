@@ -153,7 +153,7 @@ class Client:
         return Table(table_ref = table_ref)
 
     def _mock_make_table_ref(self, table_id:str) -> str:
-        fields = table_id.split()
+        fields = table_id.split('.')
         if len(fields) == 3:
             return table_id
         else:
