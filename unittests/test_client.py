@@ -140,6 +140,9 @@ class NestedClient1(bigquery.Client):
                 ]
         self.data_provider.add_data(data = mock_data, tag = 'default')
 
+class GenClient(bigquery.Client):
+    pass
+
 class TestResults(unittest.TestCase):
 
     def setUp(self):
@@ -394,6 +397,16 @@ class TestResults(unittest.TestCase):
                 SchemaField('date', 'DATE', 'NULLABLE', None, None, (), None)), None)), 
             SchemaField('addresses', 'STRING', 'REPEATED', None, None, (), None), 
             SchemaField('name', 'STRING', 'NULLABLE', None, None, (), None)]
+
+    def test_get_table_has_att_num_rows(self):
+        client = GenClient()
+        destination_table = client.get_table('foo.bar.goo')
+        self.assertTrue(hasattr(destination_table, 'num_rows'))
+
+    def test_get_table_has_att_num_rows_no_dataset(self):
+        client = GenClient()
+        destination_table = client.get_table('goo')
+        self.assertTrue(hasattr(destination_table, 'num_rows'))
 
 if __name__ == '__main__':
     unittest.main()
