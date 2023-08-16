@@ -14,6 +14,7 @@ class Blob:
         kms_key_name=None,
         generation=None,
         ):
+        self.name = name
         pass
 
     def upload_from_filename(self, 
