@@ -15,7 +15,6 @@ class Blob:
         generation=None,
         ):
         self.name = name
-        pass
 
     def upload_from_filename(self, 
                              filename,
