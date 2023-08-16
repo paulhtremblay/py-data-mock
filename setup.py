@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='py-data-mock',
-    version='0.0.13',    
+    version='0.0.14',    
     description='Mock Data',
     url='https://github.com/paulhtremblay/py-data-mock',
     author='Henry Tremblay',
