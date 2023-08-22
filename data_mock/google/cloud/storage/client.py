@@ -17,6 +17,6 @@ class Client:
         return Bucket(client=self, name=bucket_name, user_project=user_project)
 
     def get_bucket(self,
-                   bucket_or_name,
+                   bucket_name,
                    user_project = None):
         return Bucket(client=self, name=bucket_name, user_project=user_project)
