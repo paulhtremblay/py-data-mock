@@ -156,3 +156,6 @@ class Blob:
         retry=DEFAULT_RETRY,
         ):
         pass
+
+    def delete(self, *args, **kwargs):
+        pass
