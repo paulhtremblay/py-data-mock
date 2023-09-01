@@ -35,6 +35,19 @@ class Client:
                    user_project = None):
         return Bucket(client=self, name=bucket_name, user_project=user_project)
 
-    def list_blobs(self, bucket_name, *args, **kwargs):
+
+    def _mock_gen_func(self, bucket_name, prefix):
         l = self.mock_blobs.get(bucket_name, [])
-        return l
+        for i in l:
+            if prefix and  not i.name.startswith(prefix):
+                continue
+            yield i
+
+    def list_blobs(self, bucket_or_name, prefix = None, *args, **kwargs):
+        if hasattr(bucket_or_name, 'name'):
+            name = bucket_or_name.name
+        else:
+            name = bucket_or_name
+        return self._mock_gen_func(
+                bucket_name = name,
+                prefix = prefix)

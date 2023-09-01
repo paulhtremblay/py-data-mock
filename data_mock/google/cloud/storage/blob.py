@@ -1,6 +1,9 @@
 from data_mock.mock_helpers import writer
 import base64
 import hashlib
+import os
+
+
 
 class Blob:
 
@@ -16,12 +19,19 @@ class Blob:
         encryption_key=None,
         kms_key_name=None,
         generation=None,
-        mock_contents = 'mock-string'
+        mock_contents = None
         ):
         self.name = name
-        hashed_v =  hashlib.md5(mock_contents.encode('utf8')).digest()
+        self.mock_contents = mock_contents
+        self._make_md5_hash(contents = mock_contents)
+        self.bucket_name = bucket.name
+
+    def _make_md5_hash(self, contents):
+        if contents == None:
+            return None
+        hashed_v =  hashlib.md5(contents.encode('utf8')).digest()
         self.md5_hash =  base64.standard_b64encode(hashed_v)
-        bucket.name
+         
 
     def upload_from_filename(self, 
                              filename,
@@ -36,8 +46,15 @@ class Blob:
                             timeout=_DEFAULT_TIMEOUT,
                             checksum=None,
                             retry=DEFAULT_RETRY_IF_GENERATION_SPECIFIED,
+                             verbosity = 0,
                              ):
-        pass
+        if not os.path.isfile(filename):
+            if verbosity > 1:
+                print('In mock storage: filename {filename} does not exist, so ignoring')
+        else:
+            with open(filename, 'r') as read_obj:
+                self.mock_contents = ''.join(read_obj.readlines())
+            self._make_md5_hash(contents = self.mock_contents)
 
     def upload_from_string(self,
         data,
@@ -55,6 +72,8 @@ class Blob:
         write_class = writer.Writer(),
         ):
         write_class.write_to_storage_from_string(data = data)
+        self.mock_contents = data
+        self._make_md5_hash(contents = self.mock_contents)
 
     def upload_from_file(self,
         file_obj,
@@ -72,7 +91,8 @@ class Blob:
         checksum=None,
         retry=DEFAULT_RETRY_IF_GENERATION_SPECIFIED,
                          ):
-        pass
+        self.mock_contents = ''.join(file_obj.readlines())
+        self._make_md5_hash(contents = self.mock_contents)
 
     def download_as_bytes(
         self,
@@ -90,7 +110,9 @@ class Blob:
         checksum="md5",
         retry=DEFAULT_RETRY,
         ):
-        pass
+        if not self.mock_contents:
+            pass #should raise 404
+        return self.mock_contents.encode('utf8')
 
     def download_as_string(
         self,
@@ -107,7 +129,9 @@ class Blob:
         timeout=_DEFAULT_TIMEOUT,
         retry=DEFAULT_RETRY,
         ):
-        pass
+        if not self.mock_contents:
+            pass #should raise 404
+        return self.mock_contents.encode('utf8')
 
     def download_as_text(
         self,
@@ -125,7 +149,9 @@ class Blob:
         timeout=_DEFAULT_TIMEOUT,
         retry=DEFAULT_RETRY,
         ):
-        pass
+        if not self.mock_contents:
+            pass #should raise 404
+        return self.mock_contents
 
     def download_to_file(
         self,
@@ -144,9 +170,12 @@ class Blob:
         checksum="md5",
         retry=DEFAULT_RETRY,
         ):
-        pass
+        if not self.mock_contents:
+            pass #should raise 404
+        file_obj.write(self.mock_contents)
 
     def download_to_filename(
+        self,
         filename,
         client=None,
         start=None,
@@ -162,7 +191,10 @@ class Blob:
         checksum="md5",
         retry=DEFAULT_RETRY,
         ):
-        pass
+        if not self.mock_contents:
+            pass #should raise 404
+        with open(filename, 'w') as write_obj:
+            write_obj.write(self.mock_contents)
 
     def delete(self, *args, **kwargs):
         pass
