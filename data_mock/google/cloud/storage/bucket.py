@@ -2,8 +2,9 @@ from data_mock.google.cloud.storage.blob import Blob
 
 class Bucket():
 
-    def __init__(self, *args, **kwargs):
-        pass
+    def __init__(self, name, *args, **kwargs):
+        self.name = name
+        self.client = kwargs['client']
 
     def blob(
         self,
@@ -13,6 +14,11 @@ class Bucket():
         kms_key_name=None,
         generation=None,
     ):
+        mock_blobs = self.client.mock_blobs
+        for i in self.client.mock_blobs.get(self.name, []):
+            if i.name == blob_name:
+                return i
+
         return Blob(
             name=blob_name,
             bucket=self,
@@ -21,3 +27,6 @@ class Bucket():
             kms_key_name=kms_key_name,
             generation=generation,
         )
+
+    def list_blobs(self, prefix = None, *args, **kwargs):
+        return self.client.list_blobs(bucket_or_name = self.name, prefix = prefix)
