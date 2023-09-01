@@ -21,6 +21,7 @@ class Blob:
         self.name = name
         hashed_v =  hashlib.md5(mock_contents.encode('utf8')).digest()
         self.md5_hash =  base64.standard_b64encode(hashed_v)
+        bucket.name
 
     def upload_from_filename(self, 
                              filename,

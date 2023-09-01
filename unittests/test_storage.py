@@ -11,7 +11,8 @@ CONTENT1= 'mock-contents'
 class Mock1(storage.Client):
 
     def register_initial_mock_data(self):
-        self.register_mock_data(name = 'blob1', contents = CONTENT1 )
+        self.register_mock_data(blob_name = 'blob1', 
+                bucket_name = 'mock-bucket', contents = CONTENT1 )
 
 class TestStorage(unittest.TestCase):
 
@@ -45,7 +46,7 @@ class TestStorage(unittest.TestCase):
 
     def test_list_blobs_has_right_hash_and_right_number(self):
         storage_client = Mock1()
-        blobs = storage_client.list_blobs(bucket_name = 'mock')
+        blobs = storage_client.list_blobs(bucket_name = 'mock-bucket')
         local = hashlib.md5(CONTENT1.encode('utf8')).hexdigest()
         counter = 0
         for i in blobs:

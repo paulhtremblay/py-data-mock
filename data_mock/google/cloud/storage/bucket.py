@@ -2,8 +2,8 @@ from data_mock.google.cloud.storage.blob import Blob
 
 class Bucket():
 
-    def __init__(self, *args, **kwargs):
-        pass
+    def __init__(self, name, *args, **kwargs):
+        self.name = name
 
     def blob(
         self,
