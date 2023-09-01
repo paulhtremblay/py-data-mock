@@ -1,9 +1,17 @@
+import hashlib
+import base64
 import sys
 sys.path.append('.')
 import unittest
 from collections.abc import Iterable 
 
 from data_mock.google.cloud import storage
+CONTENT1= 'mock-contents'
+
+class Mock1(storage.Client):
+
+    def register_initial_mock_data(self):
+        self.register_mock_data(name = 'blob1', contents = CONTENT1 )
 
 class TestStorage(unittest.TestCase):
 
@@ -34,6 +42,17 @@ class TestStorage(unittest.TestCase):
         bucket = storage_client.bucket(bucket_name = 'mock')
         blob = bucket.blob(blob_name = 'mock')
         blob.delete()
+
+    def test_list_blobs_has_right_hash_and_right_number(self):
+        storage_client = Mock1()
+        blobs = storage_client.list_blobs(bucket_name = 'mock')
+        local = hashlib.md5(CONTENT1.encode('utf8')).hexdigest()
+        counter = 0
+        for i in blobs:
+            counter +=1
+            v = base64.b64decode(i.md5_hash).hex()
+            self.assertEqual(v, local)
+        self.assertEqual(counter, 1)
 
 if __name__ == '__main__':
     unittest.main()

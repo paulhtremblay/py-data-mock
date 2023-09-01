@@ -1,4 +1,7 @@
 from data_mock.mock_helpers import writer
+import base64
+import hashlib
+
 class Blob:
 
     _DEFAULT_TIMEOUT = 1
@@ -13,8 +16,11 @@ class Blob:
         encryption_key=None,
         kms_key_name=None,
         generation=None,
+        mock_contents = 'mock-string'
         ):
         self.name = name
+        hashed_v =  hashlib.md5(mock_contents.encode('utf8')).digest()
+        self.md5_hash =  base64.standard_b64encode(hashed_v)
 
     def upload_from_filename(self, 
                              filename,
