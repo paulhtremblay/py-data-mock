@@ -1,5 +1,14 @@
 # py-data-mock
 
+Overview
+=========
+py-data-mock is a series of tools that allows you to mock out data. Mocking out data is 
+important when testing. Often you want to test the correctness of code without having to 
+actually make expensive connections to a database or an API. It is often necessary to 
+have these "mocks" return data. 
+
+This suite allows you implement mocking with the ability to get values. 
+
 pip install py-data-mock
 
 BigQuery
