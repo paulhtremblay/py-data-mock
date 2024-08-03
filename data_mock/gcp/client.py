@@ -38,7 +38,7 @@ def check_data_func(data:list, m:dict):
 
 class UserDecorators():
     def check_data(func)-> Callable:
-        def inner(self, data:list, m:dict):
+        def inner(self, data:list = None, m:dict = None):
             check_data_func(data, m)
             return func(self, data, m)
         return inner

@@ -1,11 +1,12 @@
+import sys
+import os
+dirname = os.path.dirname(os.path.abspath(__file__))
+one_up = os.path.split(dirname)[0]
+sys.path.append(one_up)
+
 from unittest import mock
-import data_mock.gcp.bq_client as client
+import data_mock.gcp.client as client
 from google.cloud import bigquery
-
-class TestClient1(client.Client):
-
-    def query(self, query):
-        return self.run_query(data = [[('bytes', 1)]], m = {})
 
 def get_mb(id_:int)-> int:
     client = bigquery.Client()
@@ -25,13 +26,24 @@ where id = {id_}
         return 0
     return  .000001 * the_bytes
 
-def mock_client(*args, **kwargs):
-    return TestClient1()
+#====================TEST STARTS HERE===================
 
-@mock.patch('google.cloud.bigquery.Client', side_effect= mock_client )
+class MockClient1(client.Client):
+
+    def query(self, query):
+        return self.run_query(data = [[('bytes', 1)]], m = {})
+
+class MockClient2(client.Client):
+    pass
+
+
+@mock.patch('google.cloud.bigquery.Client', side_effect= MockClient1 )
 def test_get_mb1(m1):
-    x = get_mb(1)
-    print(x)
+    result  = get_mb(1)
+    assert result == 1e-06
 
-if __name__ == '__main__':
-    test_get_mb1()
+@mock.patch('google.cloud.bigquery.Client', side_effect= MockClient2 )
+def test_get_mb1(m1):
+    result  = get_mb(1)
+    assert result == 0
+
