@@ -55,8 +55,64 @@ class Row():
     def keys(self, *args, **kwargs):
         return self.__info.keys()
 
+def _set_defaults_for_table(kwargs):
+
+    d = {}
+    default = [
+    'clone_definition',
+    'clustering_fields',
+    'created',
+    'dataset_id',
+    'description',
+    'encryption_configuration',
+    'etag',
+    'expires',
+    'external_data_configuration',
+    'friendly_name',
+    'from_api_repr',
+    'from_string',
+    'full_table_id',
+    'labels',
+    'location',
+    'modified',
+    'mview_enable_refresh',
+    'mview_last_refresh_time',
+    'mview_query',
+    'mview_refresh_interval',
+    'num_bytes',
+    'num_rows',
+    'partition_expiration',
+    'partitioning_type',
+    'path',
+    'project',
+    'range_partitioning',
+    'reference',
+    'require_partition_filter',
+    'schema',
+    'self_link',
+    'snapshot_definition',
+    'streaming_buffer',
+    'table_constraints',
+    'table_id',
+    'table_type',
+    'time_partitioning',
+    'to_api_repr',
+    'to_bqstorage',
+    'view_query',
+    'view_use_legacy_sql',
+    ]
+    for i in default:
+        d[i] = kwargs.get(i)
+    return d
+
 class Table:
-    pass
+
+    def __init__(self, table_ref = None, *args, **kwargs):
+        self.project = None
+        d = _set_defaults_for_table(kwargs)
+        for key in d.keys():
+            self.__dict__[key] = d[key]
+        self.table_id = table_ref
 
 class TableReference:
     pass

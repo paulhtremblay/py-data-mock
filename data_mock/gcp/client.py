@@ -68,8 +68,8 @@ class Client:
             m = {}
         return RowIterator(data = data, m = m)
 
-    def create_table(self):
-        raise NotImplementedError()
+    def create_table(self, table, *args, **kwargs):
+        return table
 
     def delete_table(self):
         raise NotImplementedError()
@@ -82,4 +82,13 @@ class Client:
 
     def get_table(self):
         raise NotImplementedError()
+
+    def dataset(self, table_id, *args, **kwargs):
+        class foo:
+            def __init__(self):
+                pass
+            def table(self, args, **kwargs):
+                return 
+        #return Table(table_id = table_id)
+        return foo()
 

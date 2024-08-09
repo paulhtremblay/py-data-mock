@@ -5,9 +5,10 @@ import pytest
 sys.path.append('.')
 
 import data_mock.gcp.client as client
+import data_mock.gcp.bigquery as bigquery
 from data_mock.gcp.client import DataValidationError
 
-from google.cloud import bigquery
+#from google.cloud import bigquery
 
 class ClassTest1(client.Client):
     pass
@@ -47,6 +48,11 @@ class ClassTest7(client.Client):
         return self.run_query(
                 data = [[('first-key', 1), ('second-key', 2)]], 
                 m = 1)
+
+class ClassTest8(client.Client):
+    """For testing create table"""
+    pass
+
 
 
 def test_class1():
@@ -95,4 +101,27 @@ def test_class_meta_not_dict_raises_error():
         query_job = client.query('')
 
 
+def test_create_table_has_right_atts():
+    client = ClassTest8()
+    dataset_id = 'mock'
+    dataset_ref = client.dataset(dataset_id)
+    table_id = 'mock'
+    table_ref = dataset_ref.table(table_id)
+    table_ref = 'mock'
+    schema = 'mock'
+    table = bigquery.Table(table_ref, schema=schema)
+    partition_field = 'mock'
+    require_partition_filter = True
+    table.time_partitioning = bigquery.TimePartitioning(
+                type_=bigquery.TimePartitioningType.DAY, 
+                field = partition_field, 
+                require_partition_filter = require_partition_filter)
+    clustering_fields = ['a', 'b']
+    table.clustering_fields = clustering_fields
+    description = ''
+    table.description = description
+    table = client.create_table(table)  
+    assert hasattr(table, 'path')
+    assert hasattr(table, 'table_id')
+    assert table.table_id == 'mock'
 
