@@ -6,6 +6,7 @@ sys.path.append('.')
 
 import data_mock.gcp.client as client
 import data_mock.gcp.bigquery as bigquery
+import data_mock.gcp.table as table
 from data_mock.gcp.client import DataValidationError
 
 #from google.cloud import bigquery
@@ -53,7 +54,15 @@ class ClassTest8(client.Client):
     """For testing create table"""
     pass
 
+class ClassTest9(client.Client):
+    """test mock list of tables"""
+    def mock_list_of_tables(self):
+        self.list_of_tables = ['x']
 
+class ClassTest10(client.Client):
+    """test mock list of tables"""
+    def mock_list_of_tables(self):
+        self.list_of_tables = [table.Table()]
 
 def test_class1():
     client = ClassTest1()
@@ -125,3 +134,9 @@ def test_create_table_has_right_atts():
     assert hasattr(table, 'table_id')
     assert table.table_id == 'mock'
 
+def test_bad_list_of_tables_raises_error():
+    with pytest.raises(DataValidationError) as e_info:
+        client = ClassTest9()
+
+def test_list_of_tables_does_raises_error():
+    client = ClassTest10()

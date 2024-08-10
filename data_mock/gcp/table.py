@@ -1,3 +1,4 @@
+from typing import Union, Optional, Sequence, Type, TypeVar, Optional, List, Dict
 class RowIterator:
 
     def __init__(self, data, m):
@@ -107,7 +108,7 @@ def _set_defaults_for_table(kwargs):
 
 class Table:
 
-    def __init__(self, table_ref = None, *args, **kwargs):
+    def __init__(self, table_ref:Union[str, None] = None, *args, **kwargs):
         self.project = None
         d = _set_defaults_for_table(kwargs)
         for key in d.keys():

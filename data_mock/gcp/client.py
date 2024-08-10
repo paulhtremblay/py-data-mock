@@ -36,20 +36,34 @@ def check_data_func(data:list, m:dict):
     _check_data(data)
     _check_meta(m)
 
+def check_mock_list_of_tables(
+        mock_list_of_tables:Union[List[Table], None] = None):
+    if mock_list_of_tables == None:
+        return
+    for i in mock_list_of_tables:
+        if not isinstance(i, Table):
+            raise  DataValidationError(
+                    'items passed to mock_list_of tables must be Table objects')
+
 class UserDecorators():
     def check_data(func)-> Callable:
-        def inner(self, data:list = None, m:dict = None):
+        def inner(self, data:Union[list, None] = None, 
+                m:Union[dict, None] = None):
             check_data_func(data, m)
             return func(self, data, m)
         return inner
 
-
 class Client:
 
     def __init__(self, project:Union[str, None] = None, 
-            mock_list_of_tables = None):
+            ):
         self.project = project
-        self.__list_of_tables = mock_list_of_tables
+        self.list_of_tables = None
+        self.mock_list_of_tables()
+        check_mock_list_of_tables(self.list_of_tables)
+
+    def mock_list_of_tables(self):
+        self.list_of_tables = []
 
     def query(self, 
             query:str,
@@ -68,7 +82,8 @@ class Client:
             m = {}
         return RowIterator(data = data, m = m)
 
-    def create_table(self, table, *args, **kwargs):
+    def create_table(self, table:object, *args, **kwargs) -> object:
+        self.list_of_tables.append(table.table_id)
         return table
 
     def delete_table(self):
@@ -83,12 +98,9 @@ class Client:
     def get_table(self):
         raise NotImplementedError()
 
-    def dataset(self, table_id, *args, **kwargs):
-        class foo:
-            def __init__(self):
-                pass
-            def table(self, args, **kwargs):
+    def dataset(self, table_id:str, *args, **kwargs) -> object:
+        class Mock:
+            def table(self, args, **kwargs)-> None:
                 return 
-        #return Table(table_id = table_id)
-        return foo()
+        return Mock()
 
