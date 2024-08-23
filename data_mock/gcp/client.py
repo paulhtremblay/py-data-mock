@@ -90,6 +90,30 @@ class Client:
         raise NotImplementedError()
 
     def list_tables(self):
+        """
+        <class 'google.cloud.bigquery.table.TableListItem'>
+clustering_fields
+created
+dataset_id
+expires
+friendly_name
+from_string
+full_table_id
+labels
+partition_expiration
+partitioning_type
+path
+project
+reference
+table_id
+table_type
+time_partitioning
+to_api_repr
+to_bqstorage
+view_use_legacy_sql
+
+
+        """
         raise NotImplementedError()
 
     def load_table_from_uri(self):
