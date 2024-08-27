@@ -104,128 +104,128 @@ class Client:
         return Mock()
 
     def cancel_job(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def close(self, *args, **kwargs):
          raise NotImplementedError()
 
     def copy_table(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def create_dataset(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def create_job(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def create_routine(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def default_load_job_config(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def default_query_job_config(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def delete_dataset(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def delete_job_metadata(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def delete_model(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def delete_routine(self, *args, **kwargs):
          raise NotImplementedError()
 
     def delete_table(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def extract_table(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def from_service_account_info(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def from_service_account_json(self, *args, **kwargs):
          raise NotImplementedError()
 
     def get_dataset(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def get_iam_policy(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def get_job(self, *args, **kwargs):
          raise NotImplementedError()
 
     def get_model(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def get_routine(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def get_service_account_email(self, *args, **kwargs):
          raise NotImplementedError()
 
     def get_table(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def insert_rows(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def insert_rows_from_dataframe(self, *args, **kwargs):
          raise NotImplementedError()
 
     def insert_rows_json(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def job_from_resource(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def list_datasets(self, *args, **kwargs):
          raise NotImplementedError()
 
     def list_jobs(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def list_models(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def list_partitions(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def list_projects(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def list_routines(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def list_rows(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def list_tables(self):
         return self.list_of_tables
 
 
     def load_table_from_dataframe(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def load_table_from_file(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def load_table_from_json(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def load_table_from_uri(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def location(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def project(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def query(self, 
             query:str,
@@ -236,28 +236,28 @@ class Client:
 
 
     def query_and_wait(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def schema_from_json(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def schema_to_json(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def set_iam_policy(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def test_iam_permissions(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def update_dataset(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def update_model(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def update_routine(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
 
     def update_table(self, *args, **kwargs):
-         raise NotImplementedError()
+        raise NotImplementedError()
