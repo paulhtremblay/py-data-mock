@@ -58,19 +58,24 @@ class Client:
     def __init__(self, project:Union[str, None] = None, 
             ):
         self.project = project
-        self.list_of_tables = None
-        self.mock_list_of_tables()
+        self.initialize_table_list()
         check_mock_list_of_tables(self.list_of_tables)
 
-    def mock_list_of_tables(self):
+    def create_table_list(self, tables:List[Dict] = None):
         self.list_of_tables = []
+        if tables == None:
+            return
+        if not isinstance(tables, list):
+            raise  DataValidationError('table must be a list of dicts')
+        for i in tables:
+            if not isinstance(i, dict):
+                raise  DataValidationError('Each item in initialize table must be a dict')
+            self.list_of_tables.append(
+                    Table(**i)
+                    )
 
-    def query(self, 
-            query:str,
-            *args, 
-            **kwargs
-              ) -> RowIterator:
-        return self.run_query(data = None, m = {})
+    def initialize_table_list(self, tables:List[Dict] = None) :
+        self.list_of_tables = []
 
     @UserDecorators.check_data
     def run_query(self, 
@@ -81,46 +86,16 @@ class Client:
         if m == None:
             m = {}
         return RowIterator(data = data, m = m)
+    #===========================================================================#
 
-    def create_table(self, table:object, *args, **kwargs) -> object:
-        self.list_of_tables.append(table.table_id)
+    def create_table(self, table:Union[Table, str], *args, **kwargs) -> Table:
+        if isinstance(table, Table):
+            pass
+        else:
+            #assume the table id is passed
+            table = Table(table_ref = table)
+        self.list_of_tables.append(table)
         return table
-
-    def delete_table(self):
-        raise NotImplementedError()
-
-    def list_tables(self):
-        """
-        <class 'google.cloud.bigquery.table.TableListItem'>
-clustering_fields
-created
-dataset_id
-expires
-friendly_name
-from_string
-full_table_id
-labels
-partition_expiration
-partitioning_type
-path
-project
-reference
-table_id
-table_type
-time_partitioning
-to_api_repr
-to_bqstorage
-view_use_legacy_sql
-
-
-        """
-        raise NotImplementedError()
-
-    def load_table_from_uri(self):
-        raise NotImplementedError()
-
-    def get_table(self):
-        raise NotImplementedError()
 
     def dataset(self, table_id:str, *args, **kwargs) -> object:
         class Mock:
@@ -128,3 +103,161 @@ view_use_legacy_sql
                 return 
         return Mock()
 
+    def cancel_job(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def close(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def copy_table(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def create_dataset(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def create_job(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def create_routine(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def default_load_job_config(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def default_query_job_config(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def delete_dataset(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def delete_job_metadata(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def delete_model(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def delete_routine(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def delete_table(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def extract_table(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def from_service_account_info(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def from_service_account_json(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def get_dataset(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def get_iam_policy(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def get_job(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def get_model(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def get_routine(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def get_service_account_email(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def get_table(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def insert_rows(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def insert_rows_from_dataframe(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def insert_rows_json(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def job_from_resource(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def list_datasets(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def list_jobs(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def list_models(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def list_partitions(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def list_projects(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def list_routines(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def list_rows(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def list_tables(self):
+        return self.list_of_tables
+
+
+    def load_table_from_dataframe(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def load_table_from_file(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def load_table_from_json(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def load_table_from_uri(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def location(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def project(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def query(self, 
+            query:str,
+            *args, 
+            **kwargs
+              ) -> RowIterator:
+        return self.run_query(data = None, m = {})
+
+
+    def query_and_wait(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def schema_from_json(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def schema_to_json(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def set_iam_policy(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def test_iam_permissions(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def update_dataset(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def update_model(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def update_routine(self, *args, **kwargs):
+         raise NotImplementedError()
+
+    def update_table(self, *args, **kwargs):
+         raise NotImplementedError()

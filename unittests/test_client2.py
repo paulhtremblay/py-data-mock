@@ -56,13 +56,25 @@ class ClassTest8(client.Client):
 
 class ClassTest9(client.Client):
     """test mock list of tables"""
-    def mock_list_of_tables(self):
-        self.list_of_tables = ['x']
+    def initialize_table_list(self):
+        self.create_table_list({'x':'y'})
 
 class ClassTest10(client.Client):
     """test mock list of tables"""
-    def mock_list_of_tables(self):
-        self.list_of_tables = [table.Table()]
+    pass
+
+class ClassTest11(client.Client):
+    """test mock list of tables 2"""
+    def initialize_table_list(self):
+        self.create_table_list([{'table_ref':'mock1'}])
+
+class ClassTest12(client.Client):
+    """test mock list of tables"""
+    def initialize_table_list(self):
+        self.create_table_list([None])
+
+class ClassTest13(client.Client):
+    pass
 
 def test_class1():
     client = ClassTest1()
@@ -138,5 +150,22 @@ def test_bad_list_of_tables_raises_error():
     with pytest.raises(DataValidationError) as e_info:
         client = ClassTest9()
 
-def test_list_of_tables_does_raises_error():
+def test_bad_list_of_tables_raises_error2():
+    with pytest.raises(DataValidationError) as e_info:
+        client = ClassTest12()
+
+def test_list_of_tables_does_not_raise_error():
     client = ClassTest10()
+
+def test_list_of_tables_has_right_table_id():
+    client = ClassTest11()
+    l = client.list_tables()
+    assert l[0].table_id == 'mock1'
+
+def test_create_table_creates_table_with_right_id():
+    client = ClassTest13()
+    t = client.create_table(table = 'mock1')
+    assert isinstance(t, table.Table)
+    l = client.list_tables()
+    assert l[0].table_id == 'mock1'
+
