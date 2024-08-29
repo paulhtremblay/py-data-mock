@@ -17,38 +17,40 @@ class ClassTest1(client.Client):
 class ClassTest2(client.Client):
 
     def query(self, query):
-        return self.run_query(data = [[('first-key', 1), ('second-key', 2)]], m = {})
+        return self.run_query(
+                data = [[('first-key', 1), ('second-key', 2)]], 
+                meta = {})
 
 class ClassTest3(client.Client):
 
     def query(self, query):
         return self.run_query(
-                data = 1, m = {})
+                data = 1, meta = {})
 
 class ClassTest4(client.Client):
 
     def query(self, query):
         return self.run_query(
-                data = [1], m = {})
+                data = [1], meta = {})
 
 class ClassTest5(client.Client):
 
     def query(self, query):
         return self.run_query(
-                data = [[1]], m = {})
+                data = [[1]], meta = {})
 
 class ClassTest6(client.Client):
 
     def query(self, query):
         return self.run_query(
-                data = [[(1)]], m = {})
+                data = [[(1)]], meta = {})
 
 class ClassTest7(client.Client):
 
     def query(self, query):
         return self.run_query(
                 data = [[('first-key', 1), ('second-key', 2)]], 
-                m = 1)
+                meta = 1)
 
 class ClassTest8(client.Client):
     """For testing create table"""
@@ -168,4 +170,7 @@ def test_create_table_creates_table_with_right_id():
     assert isinstance(t, table.Table)
     l = client.list_tables()
     assert l[0].table_id == 'mock1'
+    l_tables = client.list_tables()
+    assert len(l_tables) == 1
+    assert l_tables[0].table_id == 'mock1'
 

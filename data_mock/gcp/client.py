@@ -26,15 +26,15 @@ def _check_data(data:Union[List, None]) -> bool:
             raise DataValidationError('tuple must be (name, value)')
     return True
 
-def _check_meta(m:Union[Dict, None]):
-    if m == None:
+def _check_meta(meta:Union[Dict, None]):
+    if meta == None:
         return
-    if not  isinstance(m, dict):
+    if not  isinstance(meta, dict):
         raise DataValidationError('meta must be dict')
 
-def check_data_func(data:list, m:dict):
+def check_data_func(data:list, meta:dict):
     _check_data(data)
-    _check_meta(m)
+    _check_meta(meta)
 
 def check_mock_list_of_tables(
         mock_list_of_tables:Union[List[Table], None] = None):
@@ -48,9 +48,9 @@ def check_mock_list_of_tables(
 class UserDecorators():
     def check_data(func)-> Callable:
         def inner(self, data:Union[list, None] = None, 
-                m:Union[dict, None] = None):
-            check_data_func(data, m)
-            return func(self, data, m)
+                meta:Union[dict, None] = None):
+            check_data_func(data, meta)
+            return func(self, data, meta)
         return inner
 
 class Client:
@@ -80,15 +80,16 @@ class Client:
     @UserDecorators.check_data
     def run_query(self, 
             data:Union[List[List[tuple]], None] = None, 
-            m:Union[dict, None] = None):
+            meta:Union[dict, None] = None) -> RowIterator:
         if data == None:
             data = []
-        if m == None:
-            m = {}
-        return RowIterator(data = data, m = m)
+        if meta == None:
+            meta = {}
+        return RowIterator(data = data, meta = meta)
     #===========================================================================#
 
-    def create_table(self, table:Union[Table, str], *args, **kwargs) -> Table:
+    def create_table(self, table:Union[Table, str], 
+            *args, **kwargs) -> Table:
         if isinstance(table, Table):
             pass
         else:
@@ -208,7 +209,6 @@ class Client:
     def list_tables(self):
         return self.list_of_tables
 
-
     def load_table_from_dataframe(self, *args, **kwargs):
         raise NotImplementedError()
 
@@ -232,8 +232,7 @@ class Client:
             *args, 
             **kwargs
               ) -> RowIterator:
-        return self.run_query(data = None, m = {})
-
+        return self.run_query(data = None, meta = {})
 
     def query_and_wait(self, *args, **kwargs):
         raise NotImplementedError()

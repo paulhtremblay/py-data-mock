@@ -1,7 +1,8 @@
-from typing import Union, Optional, Sequence, Type, TypeVar, Optional, List, Dict
+from typing import Union, Optional, Sequence, Type, TypeVar, Optional, List, Dict, Tuple
 class RowIterator:
 
-    def __init__(self, data, m):
+    def __init__(self, data:Union[List[List[tuple]], None] = None, 
+            meta:Union[dict, None] = None):
         if data == None:
             def none_generator():
                 return
@@ -13,8 +14,8 @@ class RowIterator:
                 for i in data:
                     yield i
             self.__data = my_generator()
-            self.total_rows = m.get('total_rows')
-            self.schema = m.get('schema')
+            self.total_rows = meta.get('total_rows')
+            self.schema = meta.get('schema')
 
     def __iter__(self):
         return self
@@ -31,7 +32,7 @@ class RowIterator:
 
 class Row():
 
-    def __init__(self, row):
+    def __init__(self, row:List[Tuple]):
         self.__info = {}
         l = []
         for i in row:
