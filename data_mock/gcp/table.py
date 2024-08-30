@@ -1,4 +1,8 @@
 from typing import Union, Optional, Sequence, Type, TypeVar, Optional, List, Dict, Tuple
+
+class DataValidationError(Exception):
+    pass
+
 class RowIterator:
 
     def __init__(self, data:Union[List[List[tuple]], None] = None, 
@@ -114,10 +118,24 @@ class Table:
         d = _set_defaults_for_table(kwargs)
         for key in d.keys():
             self.__dict__[key] = d[key]
-        if hasattr(table_ref, 'table_id'):
-            self.table_id = table_ref.table_id
-        else:
-            self.table_id = table_ref
+        self._make_table_ref(table_ref)
+
+    def _make_table_ref(self, table_ref):
+        fields = table_ref.split('.')
+        if len(fields) != 3:
+            raise DataValidationError('table_ref must be in format "project.dataset_id.table_id"')
+        self.project = fields[0]
+        self.dataset_id = fields[1]
+        self.table_id = fields[2]
+
+
+    @property
+    def time_partitioning(self):
+        return self.time_partitioning_
+
+    @time_partitioning.setter
+    def time_partitioning(self, x):
+        self.time_partitioning_ = x
 
 class TableReference:
     pass

@@ -7,6 +7,7 @@ from data_mock.gcp.table  import TableReference
 from data_mock.gcp.table  import TableListItem
 from data_mock.gcp.job  import LoadJobConfig
 import data_mock.gcp.job as job
+import data_mock.gcp.bigquery as bigquery
 
 from typing import Union, Optional, Sequence, Type, TypeVar, Optional, List, Dict
 
