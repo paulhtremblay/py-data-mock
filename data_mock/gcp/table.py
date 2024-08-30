@@ -114,7 +114,10 @@ class Table:
         d = _set_defaults_for_table(kwargs)
         for key in d.keys():
             self.__dict__[key] = d[key]
-        self.table_id = table_ref
+        if hasattr(table_ref, 'table_id'):
+            self.table_id = table_ref.table_id
+        else:
+            self.table_id = table_ref
 
 class TableReference:
     pass

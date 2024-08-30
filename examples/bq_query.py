@@ -1,8 +1,5 @@
 import sys
 import os
-dirname = os.path.dirname(os.path.abspath(__file__))
-one_up = os.path.split(dirname)[0]
-sys.path.append(one_up)
 
 from unittest import mock
 import data_mock.gcp.client as client

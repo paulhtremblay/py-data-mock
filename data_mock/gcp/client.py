@@ -2,6 +2,7 @@ from collections.abc import Callable
 from data_mock.gcp.table  import RowIterator
 from data_mock.gcp import table 
 from data_mock.gcp.table  import Table
+from data_mock.gcp.dataset  import Dataset
 from data_mock.gcp.table  import TableReference
 from data_mock.gcp.table  import TableListItem
 from data_mock.gcp.job  import LoadJobConfig
@@ -98,11 +99,8 @@ class Client:
         self.list_of_tables.append(table)
         return table
 
-    def dataset(self, table_id:str, *args, **kwargs) -> object:
-        class Mock:
-            def table(self, args, **kwargs)-> None:
-                return 
-        return Mock()
+    def dataset(self, dataset_ref:str, *args, **kwargs) -> Dataset:
+        return Dataset(dataset_ref = dataset_ref)
 
     def cancel_job(self, *args, **kwargs):
         raise NotImplementedError()

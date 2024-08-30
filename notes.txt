@@ -1,0 +1,1 @@
+export PYTHONPATH=/home/henry/projects/py-data-mock/
