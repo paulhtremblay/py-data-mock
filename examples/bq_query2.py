@@ -15,6 +15,9 @@ AND start_time < '{end_date}'
     """
     query_job = client.query(sql)
     rows = query_job.result() 
+    #rows.schema
+    #rows.job_id
+    #rows.total_rows
     return rows
 
 def caclulate_minutes(start_date: str, end_date: str)-> int:
@@ -50,6 +53,8 @@ class MockClient1():
 
             def __init__(self, minutes):
                 self.minutes = minutes
+                self.total_rows = 1
+                self.job_id = 'mock'
         return [Mock(minutes = 6686876)]
 
 @mock.patch(__name__ + '.get_days', side_effect= mock_rows1 )
